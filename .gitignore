@@ -1,2 +1,4 @@
 rainign/node_modules/
 node_modules
+.env.influxdb2-admin-password
+.env.influxdb2-admin-username
