@@ -1,7 +1,7 @@
-const { InfluxDB, Point } = require('@influxdata/influxdb-client')
-const fs = require('fs')
-import Watcher from 'watcher';
-import nmea from 'nmea-simple';
+import { InfluxDB, Point } from '@influxdata/influxdb-client'
+import fs from 'fs'
+import Watcher from 'watcher'
+import nmea from 'nmea-simple'
 
 const token = fs.readFileSync(process.env.DOCKER_INFLUXDB_INIT_ADMIN_TOKEN_FILE, 'utf8').trim()
 
@@ -9,7 +9,8 @@ const influxDB = new InfluxDB({url: process.env.INFLUXDB_URL, token: token})
 
 const writeApi = influxDB.getWriteApi(process.env.DOCKER_INFLUXDB_INIT_ORG, process.env.DOCKER_INFLUXDB_INIT_BUCKET)
 
-const gps = new Watcher ( '/dev/shm/gpsNmea' );
+// const gps = new Watcher ( '/dev/shm/gpsNmea' );
+const gps = new Watcher ( '/home/ibhou/Documents/station-meteo/rasp/dev/shm/gpsNmea');
 const rain = new Watcher ( '/dev/shm/rainCounter.log' );
 const sensor = new Watcher ( '/dev/shm/sensors' );
 const tph = new Watcher ( '/dev/shm/tph.log' );
@@ -35,6 +36,36 @@ sensor.on('change', filePath => {
 
 });
 
+
+gps.on('change', filePath => {
+    fs.readFile(filePath, 'utf8', (err, data) => {
+        if (err) {
+            console.error('Problème de lecture:', err);
+            return;
+        }
+        const lines = data.split('\r\n');
+        lines.forEach(line => {
+            try {
+                const packet = nmea.parseNmeaSentence(line);
+
+                if (packet.sentenceId === "RMC" && packet.status === "valid") {
+                    console.log("Got location via RMC packet:", packet.latitude, packet.longitude);
+                }
+
+                if (packet.sentenceId === "GGA" && packet.fixType !== "none") {
+                    console.log("Got location via GGA packet:", packet.latitude, packet.longitude);
+                }
+
+                if (packet.sentenceId === "GSA") {
+                    console.log("There are " + packet.satellites.length + " satellites in view.");
+                }
+            } catch (error) {
+                console.error("Got bad packet:", line, error);
+            }
+        });
+    });
+});
+
 const writeData = async (data) => {
     const point = new Point('weather')
         .tag('location', data.location)
@@ -45,6 +76,7 @@ const writeData = async (data) => {
     writeApi.writePoint(point)
     writeApi.flush()
     }
+
 
 
 const closeConnection = () => {
