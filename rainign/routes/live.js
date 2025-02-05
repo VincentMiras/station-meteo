@@ -1,6 +1,12 @@
 var express = require('express');
 var router = express.Router();
 
+function sendError(res) {
+    return res.status(400).json({
+    message: "A query argument is invalid"
+    });
+}
+
 /* GET home page. */
 router.get('/:list_capteur?', function(req, res, next) {
     const url = 'influxdb://localhost:8086'
@@ -12,10 +18,11 @@ router.get('/:list_capteur?', function(req, res, next) {
         const listCapteur = Array.from(new Set(listC));
         for (let element of listCapteur){
             if (!valid_Capteur.includes(element)){
-                res.send(`Paramètres non valide`)
+                console.log("Capteur(s) inconnu")
+                return sendError(res);
             }
         }
-        res.send(`Le paramètre listCapteur est : ${listCapteur}.`)
+        return res.send(`Le paramètre listCapteur est : ${listCapteur}.`)
     }
 
     if (!capteurs) {

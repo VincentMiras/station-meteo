@@ -7,6 +7,12 @@ function isValidUTC(string) {
     return !isNaN(timestamp) && string.endsWith('Z');
   }
 
+function sendError(res) {
+    return res.status(400).json({
+    message: "A query argument is invalid"
+    });
+}
+
 
 /* GET home page. */
 router.get('/:start/:end/:list_capteur?', function(req, res, next) {
@@ -17,18 +23,22 @@ router.get('/:start/:end/:list_capteur?', function(req, res, next) {
     const valid_Capteur=['date','temperature','pressure','humidity','lux','wind_heading','wind_speed_avg','rain','lat','long']
 
     if (!startDate) {
-        return res.send('Le paramètre startDate est manquant !');
+        console.log("Date de début absente")
+        return sendError(res);
     }
     if (!endDate) {
-        return res.send('Le paramètre endDate est manquant !');
+        console.log("Date de fin absente")
+        return sendError(res);
     }
 
     if (!isValidUTC(startDate)){
-        res.send(`Date de début invalide`)
+        console.log("Date de début invalide")
+        return sendError(res)
     }
 
     if (!isValidUTC(endDate)){
-        res.send(`Date de fin invalide`)
+        console.log("Date de fin invalide")
+        return sendError(res)
     }
 
     if (capteurs){
@@ -36,15 +46,16 @@ router.get('/:start/:end/:list_capteur?', function(req, res, next) {
         const listCapteur = Array.from(new Set(listC));
         for (let element of listCapteur){
             if (!valid_Capteur.includes(element)){
-                res.send(`Paramètres non valide`)
+                console.log("Capteur(s) inconnu")
+                return sendError(res)
             }
         }
-        res.send(`Le paramètre startDate est : ${startDate}.
+        return res.send(`Le paramètre startDate est : ${startDate}.
             Le paramètre endDate est : ${endDate}.
             Le paramètre listCapteur est : ${listCapteur}.`)
     }
 
-    res.send(`Le paramètre startDate est : ${startDate}.
+    return res.send(`Le paramètre startDate est : ${startDate}.
         Le paramètre endDate est : ${endDate}.`)
 
 });
