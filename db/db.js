@@ -94,6 +94,7 @@ const sampleData = {
     timestamp: Date.now()
 }
 
+
 // writeData(sampleData).then(() => {
 //     closeConnection()
 // }).catch(e => {
