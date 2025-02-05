@@ -1,4 +1,3 @@
-rainign/node_modules/
 node_modules
 .password/.env.influxdb2-admin-password
 .password/.env.influxdb2-admin-username
