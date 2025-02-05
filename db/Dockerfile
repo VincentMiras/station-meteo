@@ -1,6 +1,5 @@
-FROM node:14
+FROM node:18
+COPY . /app
 WORKDIR /app
-COPY . .
-RUN npm install 
-EXPOSE 8416
-CMD ["npm", "run", "watch"]
+RUN npm install
+CMD ["npm", "run", "start"]

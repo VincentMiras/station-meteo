@@ -3,14 +3,13 @@ import fs from 'fs'
 import Watcher from 'watcher'
 import nmea from 'nmea-simple'
 
-const token = fs.readFileSync(process.env.DOCKER_INFLUXDB_INIT_ADMIN_TOKEN_FILE, 'utf8').trim()
+// const token = fs.readFileSync(process.env.DOCKER_INFLUXDB_INIT_ADMIN_TOKEN_FILE, 'utf8').trim()
 
-const influxDB = new InfluxDB({url: process.env.INFLUXDB_URL, token: token})
+// const influxDB = new InfluxDB({url: process.env.INFLUXDB_URL, token: token})
 
-const writeApi = influxDB.getWriteApi(process.env.DOCKER_INFLUXDB_INIT_ORG, process.env.DOCKER_INFLUXDB_INIT_BUCKET)
+// const writeApi = influxDB.getWriteApi(process.env.DOCKER_INFLUXDB_INIT_ORG, process.env.DOCKER_INFLUXDB_INIT_BUCKET)
 
-// const gps = new Watcher ( '/dev/shm/gpsNmea' );
-const gps = new Watcher ( '/home/ibhou/Documents/station-meteo/rasp/dev/shm/gpsNmea');
+const gps = new Watcher ( '/dev/shm/gpsNmea' );
 const rain = new Watcher ( '/dev/shm/rainCounter.log' );
 const sensor = new Watcher ( '/dev/shm/sensors' );
 const tph = new Watcher ( '/dev/shm/tph.log' );
@@ -87,7 +86,6 @@ const closeConnection = () => {
     })
 }
 
-module.exports = { writeData, closeConnection }
 
 const sampleData = {
     location: 'office',
@@ -96,8 +94,9 @@ const sampleData = {
     timestamp: Date.now()
 }
 
-writeData(sampleData).then(() => {
-    closeConnection()
-}).catch(e => {
-    console.error('Error writing data', e)
-})
+// writeData(sampleData).then(() => {
+//     closeConnection()
+// }).catch(e => {
+//     console.error('Error writing data', e)
+// })
+
