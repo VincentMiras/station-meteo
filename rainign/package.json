@@ -16,7 +16,6 @@
     "http-errors": "~1.6.3",
     "morgan": "~1.9.1",
     "pug": "2.0.0-beta11",
-    "watcher": "^2.3.1",
     "nodemon": "^3.1.9"
   }
 }
