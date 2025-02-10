@@ -42,6 +42,7 @@ const fileLineCount = {
     sensor: 0,
     tph: 0
 }
+
 gps.on('change', filePath => {
     fs.readFile(filePath, 'utf8', (err, data) => {
         if (err) {
@@ -74,9 +75,11 @@ gps.on('change', filePath => {
                         point.intField('satellites', packet.satellites.length);
                     }
                     writeClient.writePoint(point);
+                    console.log(`Data written to DB: ${JSON.stringify(packet)}`);
                 }
             } catch (error) {
                 console.error("Got bad packet:", line, error);
+                console.log(`Data not written to DB: ${line}`);
             }
         });
     });
