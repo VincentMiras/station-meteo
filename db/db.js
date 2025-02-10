@@ -45,49 +45,52 @@ const fileLineCount = {
     tph: 0
 }
 
-gps.on('change', filePath => {
-    fs.readFile(filePath, 'utf8', (err, data) => {
-        if (err) {
-            console.error('Problème de lecture:', err);
-            return;
-        }
-        const lines = data.split('\r\n');
-        const newLines = lines.slice(fileLineCount.gps);
-        fileLineCount.gps = lines.length;
-        newLines.forEach(line => {
-            try {
-                const packet = nmea.parseNmeaSentence(line);
-
-                if (["RMC", "GGA", "GSA"].includes(packet.sentenceId)) {
-                    const point = new Point('gps')
-                        .tag('sentenceId', packet.sentenceId)
-                        .timestamp(new Date());
-
-                    if (packet.sentenceId === "RMC" && packet.status === "valid") {
-                        point.floatField('latitude', packet.latitude)
-                            .floatField('longitude', packet.longitude);
-                    }
-
-                    if (packet.sentenceId === "GGA" && packet.fixType !== "none") {
-                        point.floatField('latitude', packet.latitude)
-                            .floatField('longitude', packet.longitude);
-                    }
-
-                    if (packet.sentenceId === "GSA") {
-                        point.intField('satellites', packet.satellites.length);
-                    }
-                    writeClient.writePoint(point);
-                    console.log(`Data written to DB: ${JSON.stringify(packet)}`);
-                }
-            } catch (error) {
-                console.error("Got bad packet:", line, error);
-                console.log(`Data not written to DB: ${line}`);
-            }
+fs.watchFile(gpsFilePath, (curr, prev) => {
+    if (curr.size > lastFileSize) {
+        const stream = fs.createReadStream(gpsFilePath, {
+            start: lastFileSize,
+            end: curr.size
         });
-    });
+
+        stream.on('data', chunk => {
+            const lines = chunk.toString().split('\r\n');
+            lines.forEach(line => {
+                try {
+                    const packet = nmea.parseNmeaSentence(line);
+
+                    if (["RMC", "GGA", "GSA"].includes(packet.sentenceId)) {
+                        const point = new Point('gps')
+                            .tag('sentenceId', packet.sentenceId)
+                            .timestamp(new Date());
+
+                        if (packet.sentenceId === "RMC" && packet.status === "valid") {
+                            point.floatField('latitude', packet.latitude)
+                                .floatField('longitude', packet.longitude);
+                        }
+
+                        if (packet.sentenceId === "GGA" && packet.fixType !== "none") {
+                            point.floatField('latitude', packet.latitude)
+                                .floatField('longitude', packet.longitude);
+                        }
+
+                        if (packet.sentenceId === "GSA") {
+                            point.intField('satellites', packet.satellites.length);
+                        }
+                        writeClient.writePoint(point);
+                        console.log(`Data written to DB: ${JSON.stringify(packet)}`);
+                    }
+                } catch (error) {
+                    console.error("Got bad packet:", line, error);
+                    console.log(`Data not written to DB: ${line}`);
+                }
+            });
+        });
+
+        stream.on('end', () => {
+            lastFileSize = curr.size;
+        });
+    }
 });
-
-
 
 sensor.on('change', filePath => {
     fs.readFile(filePath, (err, data) => {
