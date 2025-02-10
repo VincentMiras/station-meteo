@@ -33,8 +33,8 @@ const client = new InfluxDB({ url, token })
 
 let writeClient = client.getWriteApi(org, bucket, 'ns')
 
-let org = `docs`
-let bucket = `meteo`
+let org = process.env.DOCKER_INFLUXDB_INIT_ORG;
+let bucket = process.env.DOCKER_INFLUXDB_INIT_BUCKET;
 
 const fileLineCount = {
     gps: 0,

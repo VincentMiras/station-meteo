@@ -26,7 +26,7 @@ services:
       INFLUXDB_URL: http://piensg031.ensg.eu:8086
       DOCKER_INFLUXDB_INIT_ADMIN_TOKEN_FILE: /run/secrets/influxdb2-admin-token
       DOCKER_INFLUXDB_INIT_ORG: docs
-      DOCKER_INFLUXDB_INIT_BUCKET: rasp
+      DOCKER_INFLUXDB_INIT_BUCKET: meteo
     secrets:
       - influxdb2-admin-token
     networks:
@@ -46,7 +46,7 @@ services:
       INFLUXDB_URL: http://piensg031.ensg.eu:8086
       DOCKER_INFLUXDB_INIT_ADMIN_TOKEN_FILE: /run/secrets/influxdb2-admin-token
       DOCKER_INFLUXDB_INIT_ORG: docs
-      DOCKER_INFLUXDB_INIT_BUCKET: rasp
+      DOCKER_INFLUXDB_INIT_BUCKET: meteo
     secrets:
       - influxdb2-admin-token
     networks:
