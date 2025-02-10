@@ -18,6 +18,7 @@ import nmea from 'nmea-simple'
 
 /////////////////////////////////////////////////////////////////CHEMIN D'ACCES AUX FICHIERS RASP/////////////////////////////////////////////////////////////
 const gps = new Watcher('/dev/shm/gpsNmea');
+const gpsFilePath = '/dev/shm/gpsNmea';
 const rain = new Watcher('/dev/shm/rainCounter.log');
 const sensor = new Watcher('/dev/shm/sensors');
 const tph = new Watcher('/dev/shm/tph.log');
