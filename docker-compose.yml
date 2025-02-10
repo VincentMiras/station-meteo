@@ -48,6 +48,8 @@ services:
       - influxdb2-admin-token
     networks:
       - reseau
+    depends_on:
+      - influxdb
 secrets:
   influxdb2-admin-username:
     file: ./.password/.env.influxdb2-admin-username
