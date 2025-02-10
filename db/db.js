@@ -87,7 +87,7 @@ fs.watchFile(gps, (curr, prev) => {
         });
 
         stream.on('end', () => {
-            lastFileSize = curr.size;
+            fileLineCount.gps = curr.size;
         });
     }
 });
