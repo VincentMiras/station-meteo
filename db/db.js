@@ -45,7 +45,7 @@ const fileLineCount = {
     tph: 0
 }
 
-fs.watchFile(gpsFilePath, (curr, prev) => {
+fs.watchFile(gps, (curr, prev) => {
     if (curr.size > lastFileSize) {
         const stream = fs.createReadStream(gpsFilePath, {
             start: lastFileSize,
