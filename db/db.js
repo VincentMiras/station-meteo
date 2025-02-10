@@ -46,9 +46,9 @@ const fileLineCount = {
 }
 
 fs.watchFile(gps, (curr, prev) => {
-    if (curr.size > lastFileSize) {
+    if (curr.size > fileLineCount.gps) {
         const stream = fs.createReadStream(gpsFilePath, {
-            start: lastFileSize,
+            start: fileLineCount.gps,
             end: curr.size
         });
 
