@@ -2,6 +2,7 @@
 services:
   influxdb:
     image: influxdb:2
+    container_name: influxdb
     restart: unless-stopped
     ports:
       - 8086:8086
@@ -18,6 +19,7 @@ services:
     build:
       context: ./rainign
       dockerfile: Dockerfile
+    container_name: api
     ports:
       - 3000:3000
     environment:
@@ -35,6 +37,7 @@ services:
     build:
       context: ./db
       dockerfile: Dockerfile
+    container_name: database
     ports:
       - 8416:8416
     volumes:
@@ -51,6 +54,7 @@ services:
     depends_on:
       - influxdb
 secrets:
+
   influxdb2-admin-username:
     file: ./.password/.env.influxdb2-admin-username
   influxdb2-admin-password:
@@ -59,7 +63,7 @@ secrets:
     file: ./.password/.env.influxdb2-admin-token
 volumes:
   influxdb2-data:
-  influxdb2-config:
+  influxdb2-config: 
 networks:
   reseau:
     driver: bridge
