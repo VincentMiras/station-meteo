@@ -31,10 +31,12 @@ const url = process.env.INFLUXDB_URL || 'http://piensg031.ensg.eu:8086';
 
 const client = new InfluxDB({ url, token })
 
-let writeClient = client.getWriteApi(org, bucket, 'ns')
-
 let org = process.env.DOCKER_INFLUXDB_INIT_ORG;
 let bucket = process.env.DOCKER_INFLUXDB_INIT_BUCKET;
+
+let writeClient = client.getWriteApi(org, bucket, 'ns')
+
+
 
 const fileLineCount = {
     gps: 0,
