@@ -3,6 +3,7 @@ services:
   influxdb:
     image: influxdb:2
     container_name: influxdb
+    restart: unless-stopped
     ports:
       - 8086:8086
     volumes:
@@ -17,14 +18,15 @@ services:
   api:
     build:
       context: ./rainign
+      dockerfile: Dockerfile
     container_name: api
     ports:
       - 3000:3000
     environment:
-      INFLUXDB_URL: http://influxdb:8086
+      INFLUXDB_URL: http://piensg031.ensg.eu:8086
       DOCKER_INFLUXDB_INIT_ADMIN_TOKEN_FILE: /run/secrets/influxdb2-admin-token
       DOCKER_INFLUXDB_INIT_ORG: docs
-      DOCKER_INFLUXDB_INIT_BUCKET: rasp
+      DOCKER_INFLUXDB_INIT_BUCKET: meteo
     secrets:
       - influxdb2-admin-token
     networks:
@@ -38,11 +40,13 @@ services:
     container_name: database
     ports:
       - 8416:8416
+    volumes:
+      - /dev/shm/:/dev/shm/
     environment:
-      INFLUXDB_URL: http://influxdb:8086
+      INFLUXDB_URL: http://piensg031.ensg.eu:8086
       DOCKER_INFLUXDB_INIT_ADMIN_TOKEN_FILE: /run/secrets/influxdb2-admin-token
       DOCKER_INFLUXDB_INIT_ORG: docs
-      DOCKER_INFLUXDB_INIT_BUCKET: rasp
+      DOCKER_INFLUXDB_INIT_BUCKET: meteo
     secrets:
       - influxdb2-admin-token
     networks:
@@ -59,7 +63,7 @@ secrets:
     file: ./.password/.env.influxdb2-admin-token
 volumes:
   influxdb2-data:
-  influxdb2-config: 
+  influxdb2-config:
 networks:
   reseau:
     driver: bridge
