@@ -3,7 +3,7 @@ import Carte from '../components/Carte.vue'
 </script>
 
 <template>
-  <main>
-    <Carte :coords="[41.7111, 1.71]" />
-  </main>
+    <main>
+        <Carte :coords="[[48.845, 2.424]]" />
+    </main>
 </template>
