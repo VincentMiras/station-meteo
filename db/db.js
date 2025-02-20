@@ -10,7 +10,7 @@ const tphFilePath = '/dev/shm/tph.log';
 
 const token = fs.readFileSync(process.env.DOCKER_INFLUXDB_INIT_ADMIN_TOKEN_FILE, 'utf8').trim();
 
-const url = process.env.INFLUXDB_URL || 'http://influxdb:8086';//'http://piensg031.ensg.eu:8086';
+const url = process.env.INFLUXDB_URL || 'http://piensg031.ensg.eu:8086';
 
 const client = new InfluxDB({ url, token })
 

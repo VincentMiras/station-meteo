@@ -41,10 +41,9 @@ services:
     ports:
       - 8416:8416
     volumes:
-      - /home/ibhou/Documents/station-meteo/dev/shm:/dev/shm
-      - /home/ibhou/Documents/station-meteo/db:/app
+      - /dev/shm:/dev/shm
     environment:
-      INFLUXDB_URL: http://influxdb:8086
+      INFLUXDB_URL: http://piensg031.ensg.eu:8086
       DOCKER_INFLUXDB_INIT_ADMIN_TOKEN_FILE: /run/secrets/influxdb2-admin-token
       DOCKER_INFLUXDB_INIT_ORG: docs
       DOCKER_INFLUXDB_INIT_BUCKET: meteo
