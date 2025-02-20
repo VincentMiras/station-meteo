@@ -42,6 +42,7 @@ services:
       - 8416:8416
     volumes:
       - /home/ibhou/Documents/station-meteo/dev/shm:/dev/shm
+      - /home/ibhou/Documents/station-meteo/db:/app
     environment:
       INFLUXDB_URL: http://influxdb:8086
       DOCKER_INFLUXDB_INIT_ADMIN_TOKEN_FILE: /run/secrets/influxdb2-admin-token
