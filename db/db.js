@@ -122,7 +122,7 @@ fs.watchFile(sensorFilePath, () => {
                             .floatField('value', parseFloat(measurement.value))
                             .tag('unit', measurement.unit);
                         writeClient.writePoint(point);
-                        console.log(`Sensor Data written to DB: ${JSON.stringify(measurement)}`);
+                        // console.log(`Sensor Data written to DB: ${JSON.stringify(measurement)}`);
                     }
                 });
             } catch (error) {
@@ -164,7 +164,7 @@ fs.watchFile(tphFilePath, () => {
                 writeClient.writePoint(tempPoint);
                 writeClient.writePoint(hygroPoint);
                 writeClient.writePoint(pressPoint);
-                console.log(`TPH Data written to DB: ${JSON.stringify(data)}`);
+                // console.log(`TPH Data written to DB: ${JSON.stringify(data)}`);
             } catch (error) {
                 console.error("Got bad packet:", line, error);
                 console.log(`TPH Data not written to DB: ${line}`);
