@@ -1,40 +1,33 @@
+<script setup>
+import { useWeatherStore } from '@/stores/weatherStore';
+
+const weatherStore = useWeatherStore();
+
+const formatLabel = (measure) => {
+    const labels = {
+        temperature: 'Température',
+        pressure: 'Pression',
+        humidity: 'Humidité',
+        rain: 'Précipitations',
+        luminosity: 'Luminosité',
+        wind_heading: 'Direction du vent',
+        wind_speed_avg: 'Vitesse moyenne du vent',
+        position: 'Position'
+    };
+    return labels[measure] || measure;
+};
+
+</script>
+
 <template>
     <fieldset class="weather-form">
         <legend class="weather-legend">Choisissez les mesures que vous souhaitez voir :</legend>
 
-        <div class="weather-option">
-            <input type="checkbox" id="temperature" name="temperature" />
-            <label for="temperature">Température</label>
-        </div>
-
-        <div class="weather-option">
-            <input type="checkbox" id="pressure" name="pressure" />
-            <label for="pressure">Pression</label>
-        </div>
-
-        <div class="weather-option">
-            <input type="checkbox" id="rain" name="rain" />
-            <label for="rain">Précipitations</label>
-        </div>
-
-        <div class="weather-option">
-            <input type="checkbox" id="luminosity" name="luminosity" />
-            <label for="luminosity">Luminosité</label>
-        </div>
-
-        <div class="weather-option">
-            <input type="checkbox" id="wind_heading" name="wind_heading" />
-            <label for="wind_heading">Direction du vent</label>
-        </div>
-
-        <div class="weather-option">
-            <input type="checkbox" id="wind_speed_avg" name="wind_speed_avg" />
-            <label for="wind_speed_avg">Vitesse moyenne du vent</label>
-        </div>
-
-        <div class="weather-option">
-            <input type="checkbox" id="position" name="position" />
-            <label for="position">Position</label>
+        <div class="weather-option"
+            v-for="measure in ['temperature', 'pressure', 'humidity', 'rain', 'luminosity', 'wind_heading', 'wind_speed_avg', 'position']"
+            :key="measure">
+            <input type="checkbox" :id="measure" :value="measure" v-model="weatherStore.selectedMeasures" />
+            <label :for="measure">{{ formatLabel(measure) }}</label>
         </div>
     </fieldset>
 </template>

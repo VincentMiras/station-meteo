@@ -1,10 +1,11 @@
 <script setup>
-import Carte from '../components/Carte.vue'
 import ChoixCapteur from '../components/ChoixCapteur.vue'
+import ValidationBouton from '../components/ValidationBouton.vue'
 </script>
 
 <template>
     <main>
         <ChoixCapteur />
+        <ValidationBouton />
     </main>
 </template>
