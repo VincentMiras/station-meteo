@@ -4,7 +4,7 @@ import { useWeatherStore } from '@/stores/weatherStore';
 const weatherStore = useWeatherStore();
 
 const handleValidation = () => {
-    console.log('Mesures sélectionnées :', weatherStore.selectedMeasures);
+    console.log('Mesures sélectionnées :', weatherStore.queryParams);
 };
 </script>
 

@@ -69,7 +69,7 @@ const formatLabel = (measure) => {
 }
 
 .weather-option label:hover {
-    color: #ffb300;
+    color: rgb(214, 161, 3);
 }
 
 .weather-option input[type="checkbox"]:checked+label {

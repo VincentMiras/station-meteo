@@ -14,6 +14,11 @@ const router = createRouter({
       name: 'live',
       component: () => import('../views/LiveView.vue'),
     },
+    {
+      path: '/sample',
+      name: 'sample',
+      component: () => import('../views/SampleView.vue'),
+    },
   ],
 })
 
