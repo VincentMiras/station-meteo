@@ -41,7 +41,7 @@ services:
     ports:
       - 8416:8416
     volumes:
-      - /dev/shm/:/dev/shm/
+      - /dev/shm:/dev/shm
     environment:
       INFLUXDB_URL: http://piensg031.ensg.eu:8086
       DOCKER_INFLUXDB_INIT_ADMIN_TOKEN_FILE: /run/secrets/influxdb2-admin-token

@@ -1,30 +1,12 @@
-import { InfluxDB, Point } from '@influxdata/influxdb-client'
-import fs from 'fs'
-import Watcher from 'watcher'
-import nmea from 'nmea-simple'
+import { InfluxDB, Point } from '@influxdata/influxdb-client';
+import fs from 'fs';
+import nmea from 'nmea-simple';
 
 
-
-// const writeApi = influxDB.getWriteApi(process.env.DOCKER_INFLUXDB_INIT_ORG, process.env.DOCKER_INFLUXDB_INIT_BUCKET)
-
-
-
-// /////////////////////////////////////////////////////////////////CHEMIN D'ACCES AUX FICHIERS LOCAUX/////////////////////////////////////////////////////////////
-// const gps = new Watcher('/home/ibhou/Documents/station-meteo/rasp/dev/shm/gpsNmea');
-// const rain = new Watcher('/dev/shm/rainCounter.log');
-// const sensor = new Watcher('/dev/shm/sensors');
-// const tph = new Watcher('/dev/shm/tph.log');
-
-
-/////////////////////////////////////////////////////////////////CHEMIN D'ACCES AUX FICHIERS RASP/////////////////////////////////////////////////////////////
-const gps = new Watcher('/dev/shm/gpsNmea');
 const gpsFilePath = '/dev/shm/gpsNmea';
-const rain = new Watcher('/dev/shm/rainCounter.log');
-const sensor = new Watcher('/dev/shm/sensors');
-const tph = new Watcher('/dev/shm/tph.log');
-var tmp_data = {}
-
-/////////////////////////////////////////////////////////////////PARAMETRES DB/////////////////////////////////////////////////////////////
+const rainFilePath = '/dev/shm/rainCounter.log';
+const sensorFilePath = '/dev/shm/sensors';
+const tphFilePath = '/dev/shm/tph.log';
 
 const token = fs.readFileSync(process.env.DOCKER_INFLUXDB_INIT_ADMIN_TOKEN_FILE, 'utf8').trim();
 
@@ -37,116 +19,157 @@ let bucket = process.env.DOCKER_INFLUXDB_INIT_BUCKET;
 
 let writeClient = client.getWriteApi(org, bucket, 'ns')
 
-
-
 const fileLineCount = {
     gps: 0,
     rain: 0,
     sensor: 0,
     tph: 0
-}
+};
 
-fs.watchFile(gpsFilePath, (curr, prev) => {
-    if (curr.size > fileLineCount.gps) {
-        const stream = fs.createReadStream(gpsFilePath, {
-            start: fileLineCount.gps,
-            end: curr.size
-        });
 
-        stream.on('data', chunk => {
-            const lines = chunk.toString().split('\r\n');
-            lines.forEach(line => {
-                try {
-                    const packet = nmea.parseNmeaSentence(line);
 
-                    if (["RMC", "GGA", "GSA"].includes(packet.sentenceId)) {
-                        const point = new Point('gps')
-                            .tag('sentenceId', packet.sentenceId)
-                            .timestamp(new Date());
+fs.watchFile(gpsFilePath, () => {
+    const lines = fs.readFileSync(gpsFilePath, 'utf8').split('\n');
+    const linesNumber = lines.length;
+    if (linesNumber < fileLineCount.gps) {
+        fileLineCount.gps = 0;
+    }
 
-                        if (packet.sentenceId === "RMC" && packet.status === "valid") {
-                            point.floatField('latitude', packet.latitude)
-                                .floatField('longitude', packet.longitude);
-                        }
+    if (linesNumber > fileLineCount.gps) {
+        const newLines = lines.slice(fileLineCount.gps, linesNumber);
+        console.log(fileLineCount.gps, linesNumber, newLines);
+        newLines.forEach(line => {
+            try {
+                line = line.trim();
+                const packet = nmea.parseNmeaSentence(line);
 
-                        if (packet.sentenceId === "GGA" && packet.fixType !== "none") {
-                            point.floatField('latitude', packet.latitude)
-                                .floatField('longitude', packet.longitude);
-                        }
+                if (["RMC", "GGA", "GSA"].includes(packet.sentenceId)) {
+                    const point = new Point('gps')
+                        .tag('sentenceId', packet.sentenceId)
+                        .timestamp(new Date());
 
-                        if (packet.sentenceId === "GSA") {
-                            point.intField('satellites', packet.satellites.length);
-                        }
-                        writeClient.writePoint(point);
-                        console.log(`Data written to DB: ${JSON.stringify(packet)}`);
+                    if (packet.sentenceId === "RMC" && packet.status === "valid") {
+                        point.floatField('latitude', packet.latitude)
+                            .floatField('longitude', packet.longitude);
                     }
-                } catch (error) {
-                    console.error("Got bad packet:", line, error);
-                    console.log(`Data not written to DB: ${line}`);
-                }
-            });
-        });
 
-        stream.on('end', () => {
-            fileLineCount.gps = curr.size;
+                    if (packet.sentenceId === "GGA" && packet.fixType !== "none") {
+                        point.floatField('latitude', packet.latitude)
+                            .floatField('longitude', packet.longitude);
+                    }
+
+                    if (packet.sentenceId === "GSA") {
+                        point.intField('satellites', packet.satellites.length);
+                    }
+                    writeClient.writePoint(point);
+                    // console.log(`GPS Data written to DB: ${JSON.stringify(packet)}`);
+                }
+            } catch (error) {
+                console.error("Got bad packet:", line, error);
+                console.log(`GPS Data not written to DB: ${line}`);
+            }
         });
+        fileLineCount.gps = linesNumber;
     }
 });
 
-sensor.on('change', filePath => {
-    fs.readFile(filePath, (err, data) => {
-        if (err) {
-            console.error('Problème de lecture:', err);
-            return;
-        }
-        try {
-            const jsonData = JSON.parse(data);
-            jsonData.measure.forEach(element => {
-                tmp_data[element["name"]] = element["value"];
-            });
-        }
-        catch (err) {
-            console.error('Error parsing JSON:', err);
-        }
-    });
+fs.watchFile(rainFilePath, () => {
+    const lines = fs.readFileSync(rainFilePath, 'utf8').split('\n');
+    const linesNumber = lines.length;
+    if (linesNumber < fileLineCount.rain) {
+        fileLineCount.rain = 0;
+    }
 
+    if (linesNumber > fileLineCount.rain) {
+        const newLines = lines.slice(fileLineCount.rain, linesNumber);
+        console.log(fileLineCount.rain, linesNumber, newLines);
+        newLines.forEach(line => {
+            try {
+                line = line.trim();
+                const point = new Point('rain')
+                point.timestamp(new Date())
+                    .intField('rain', 1);
+                writeClient.writePoint(point);
+                // console.log(`Rain Data written to DB: ${line}`);
+            } catch (error) {
+                console.error("Got bad packet:", line, error);
+                console.log(`Rain Data not written to DB: ${line}`);
+            }
+        });
+        fileLineCount.rain = linesNumber;
+    }
 });
 
+fs.watchFile(sensorFilePath, () => {
+    const lines = fs.readFileSync(sensorFilePath, 'utf8').split('\n');
+    const linesNumber = lines.length;
+    if (linesNumber < fileLineCount.sensor) {
+        fileLineCount.sensor = 0;
+    }
 
+    if (linesNumber > fileLineCount.sensor) {
+        const newLines = lines.slice(fileLineCount.sensor, linesNumber);
+        console.log(fileLineCount.sensor, linesNumber, newLines);
+        newLines.forEach(line => {
+            try {
+                line = line.trim();
+                const data = JSON.parse(line);
+                const timestamp = new Date(data.date);
+                data.measure.forEach(measurement => {
+                    if (!["temperature", "pressure", "humidity"].includes(measurement.name)) {
+                        const point = new Point(measurement.name)
+                            .timestamp(timestamp)
+                            .floatField('value', parseFloat(measurement.value))
+                            .tag('unit', measurement.unit);
+                        writeClient.writePoint(point);
+                        // console.log(`Sensor Data written to DB: ${JSON.stringify(measurement)}`);
+                    }
+                });
+            } catch (error) {
+                console.error("Got bad packet:", line, error);
+                console.log(`Sensor Data not written to DB: ${line}`);
+            }
+        });
+        fileLineCount.sensor = linesNumber;
+    }
+});
 
-const writeData = async (data) => {
-    const point = new Point('weather')
-        .tag('location', data.location)
-        .floatField('temperature', data.temperature)
-        .floatField('humidity', data.humidity)
-        .timestamp(new Date(data.timestamp))
+fs.watchFile(tphFilePath, () => {
+    const lines = fs.readFileSync(tphFilePath, 'utf8').split('\n');
+    const linesNumber = lines.length;
+    if (linesNumber < fileLineCount.tph) {
+        fileLineCount.tph = 0;
+    }
 
-    writeApi.writePoint(point)
-    writeApi.flush()
-}
-
-
-
-const closeConnection = () => {
-    writeApi.close().then(() => {
-        console.log('Connection closed')
-    }).catch(e => {
-        console.error('Error closing connection', e)
-    })
-}
-
-
-const sampleData = {
-    location: 'office',
-    temperature: 22.5,
-    humidity: 60,
-    timestamp: Date.now()
-}
-
-
-// writeData(sampleData).then(() => {
-//     closeConnection()
-// }).catch(e => {
-//     console.error('Error writing data', e)
-// })
-
+    if (linesNumber > fileLineCount.tph) {
+        const newLines = lines.slice(fileLineCount.tph, linesNumber);
+        console.log(fileLineCount.tph, linesNumber, newLines);
+        newLines.forEach(line => {
+            try {
+                line = line.trim();
+                const data = JSON.parse(line);
+                const timestamp = new Date(data.date);
+                const tempPoint = new Point('temperature')
+                    .timestamp(timestamp)
+                    .floatField('value', data.temp)
+                    .tag('unit', 'C');
+                const hygroPoint = new Point('humidity')
+                    .timestamp(timestamp)
+                    .floatField('value', data.hygro)
+                    .tag('unit', '%');
+                const pressPoint = new Point('pressure')
+                    .timestamp(timestamp)
+                    .floatField('value', data.press)
+                    .tag('unit', 'hPa');
+                writeClient.writePoint(tempPoint);
+                writeClient.writePoint(hygroPoint);
+                writeClient.writePoint(pressPoint);
+                // console.log(`TPH Data written to DB: ${JSON.stringify(data)}`);
+            } catch (error) {
+                console.error("Got bad packet:", line, error);
+                console.log(`TPH Data not written to DB: ${line}`);
+            }
+        });
+        fileLineCount.tph = linesNumber;
+    }
+});
