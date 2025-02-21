@@ -1,20 +1,27 @@
 <script setup>
+import { computed } from 'vue';
 import { useWeatherStore } from '@/stores/weatherStore';
 
 const weatherStore = useWeatherStore();
 
 const handleValidation = () => {
     console.log('Mesures sélectionnées :', weatherStore.queryParams);
+    console.log('URL auto ?:', weatherStore.url_fetch);
 };
+
+const isDisabled = computed(() =>
+    weatherStore.mode === 'sample' && !weatherStore.startDate
+);
+
 </script>
 
 <template>
-    <button class="validate-btn" @click="handleValidation">Valider</button>
+    <button class="validate-btn" @click="handleValidation" :disabled="isDisabled">Valider</button>
 </template>
 
 <style scoped>
 .validate-btn {
-    background-color: #28a745;
+    background-color: rgb(214, 161, 3);
     color: white;
     border: none;
     padding: 10px 20px;

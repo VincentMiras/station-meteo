@@ -8,10 +8,11 @@ const weatherStore = useWeatherStore();
 <template>
     <div class="date-container">
         <label for="start">Start date:</label>
-        <input type="date" id="start" name="start" v-model="weatherStore.startDate" />
+        <input type="datetime-local" id="start" name="start" :max="weatherStore.endDate"
+            v-model="weatherStore.startDate" />
 
         <label for="end">End date (optional):</label>
-        <input type="date" id="end" name="end" v-model="weatherStore.endDate" />
+        <input type="datetime-local" id="end" name="end" :min="weatherStore.startDate" v-model="weatherStore.endDate" />
     </div>
 </template>
 

@@ -27,7 +27,7 @@ header {
   top: 0;
   left: 0;
   width: 100%;
-  height: 10vh;
+  height: 9vh;
 }
 
 .logo {
