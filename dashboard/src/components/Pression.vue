@@ -1,6 +1,6 @@
 <script setup>
 const props = defineProps({
-  temp: {
+  press: {
     type: Number,
     required: true,
   },
@@ -9,9 +9,9 @@ const props = defineProps({
 
 <template>
     <div class="value-container">
-        <h3>Température</h3>
+        <h3>Pression</h3>
         <div id="value">
-            <p>{{ temp }} °C</p>
+            <p>{{ press }} hP</p>
         </div>
     </div>
 </template>
