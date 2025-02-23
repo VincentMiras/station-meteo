@@ -21,14 +21,14 @@ export const useWeatherStore = defineStore('weather', () => {
         mode: mode.value,
         measures: selectedMeasures.value,
         sdate: formatToUTC(startDate.value),
-        edate: endDate.value === '' ? 'now' : formatToUTC(endDate.value),
+        edate: (endDate.value === '' || endDate.value === 'now') ? 'now' : formatToUTC(endDate.value),
     }));
 
     // Génération de l'URL de fetch
     const url_fetch = computed(() =>
         mode.value === 'live'
             ? `/live/${selectedMeasures.value.join('-')}`
-            : `/sample/${formatToUTC(startDate.value)}/${formatToUTC(endDate.value)}/${selectedMeasures.value.join('-')}`
+            : `/sample/${queryParams.value.sdate}/${queryParams.value.edate}/${selectedMeasures.value.join('-')}`
     );
 
     return { mode, selectedMeasures, startDate, endDate, queryParams, url_fetch };
