@@ -1,7 +1,8 @@
 <script setup>
+import ChoixStation from '@/components/ChoixStation.vue';
 import ChoixCapteur from '../components/ChoixCapteur.vue'
 import ValidationBouton from '../components/ValidationBouton.vue'
-import { useWeatherStore } from '@/stores/weatherStore';
+import { useWeatherStore } from '@/stores/WeatherStore';
 
 const weatherStore = useWeatherStore();
 
@@ -12,6 +13,7 @@ weatherStore.mode = 'live';
     <main>
         <div class="selection-container">
             <ChoixCapteur />
+            <ChoixStation />
         </div>
         <div class="validation-container">
             <ValidationBouton />

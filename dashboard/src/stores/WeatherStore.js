@@ -6,6 +6,7 @@ export const useWeatherStore = defineStore('weather', () => {
     const selectedMeasures = ref([]);
     const startDate = ref('');
     const endDate = ref('now');
+    const station = ref([]);
 
     // Fonction pour convertir les dates en format UTC
     const formatToUTC = (dateStr) => {
@@ -20,6 +21,7 @@ export const useWeatherStore = defineStore('weather', () => {
     const queryParams = computed(() => ({
         mode: mode.value,
         measures: selectedMeasures.value,
+        stations: station.value,
         sdate: formatToUTC(startDate.value),
         edate: (endDate.value === '' || endDate.value === 'now') ? 'now' : formatToUTC(endDate.value),
     }));
@@ -27,9 +29,9 @@ export const useWeatherStore = defineStore('weather', () => {
     // Génération de l'URL de fetch
     const url_fetch = computed(() =>
         mode.value === 'live'
-            ? `/live/${selectedMeasures.value.join('-')}`
-            : `/sample/${queryParams.value.sdate}/${queryParams.value.edate}/${selectedMeasures.value.join('-')}`
+            ? `https://${station.value}:3000/live/${selectedMeasures.value.join('-')}`
+            : `https://${station.value}:3000/sample/${queryParams.value.sdate}/${queryParams.value.edate}/${selectedMeasures.value.join('-')}`
     );
 
-    return { mode, selectedMeasures, startDate, endDate, queryParams, url_fetch };
+    return { mode, selectedMeasures, station, startDate, endDate, queryParams, url_fetch };
 });

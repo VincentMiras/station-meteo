@@ -1,7 +1,7 @@
 <script setup>
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { useWeatherStore } from '@/stores/weatherStore';
+import { useWeatherStore } from '@/stores/WeatherStore';
 
 const router = useRouter();
 const weatherStore = useWeatherStore();
@@ -13,7 +13,7 @@ const handleValidation = () => {
 };
 
 const isDisabled = computed(() =>
-    weatherStore.mode === 'sample' && !weatherStore.startDate || weatherStore.selectedMeasures.length === 0
+    weatherStore.mode === 'sample' && !weatherStore.startDate || weatherStore.selectedMeasures.length === 0 || weatherStore.selectedMeasures.length === 0
 );
 
 </script>
