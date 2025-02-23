@@ -27,11 +27,14 @@ export const useWeatherStore = defineStore('weather', () => {
     }));
 
     // Génération de l'URL de fetch
-    const url_fetch = computed(() =>
-        mode.value === 'live'
-            ? `https://${station.value}:3000/live/${selectedMeasures.value.join('-')}`
-            : `https://${station.value}:3000/sample/${queryParams.value.sdate}/${queryParams.value.edate}/${selectedMeasures.value.join('-')}`
-    );
+    const url_fetch = computed(() => {
+        return station.value.map(stationId =>
+            mode.value === 'live'
+                ? `https://${stationId}.ensg.eu:3000/live/${selectedMeasures.value.join('-')}`
+                : `https://${stationId}.ensg.eu:3000/sample/${queryParams.value.sdate}/${queryParams.value.edate}/${selectedMeasures.value.join('-')}`
+        );
+    });
+
 
     return { mode, selectedMeasures, station, startDate, endDate, queryParams, url_fetch };
 });
