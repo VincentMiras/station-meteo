@@ -13,7 +13,7 @@ const handleValidation = () => {
 };
 
 const isDisabled = computed(() =>
-    weatherStore.mode === 'sample' && !weatherStore.startDate
+    weatherStore.mode === 'sample' && !weatherStore.startDate || weatherStore.selectedMeasures.length === 0
 );
 
 </script>
@@ -34,7 +34,18 @@ const isDisabled = computed(() =>
     transition: background 0.3s;
 }
 
-.validate-btn:hover {
+.validate-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.validate-btn:not(:disabled):hover {
     background-color: #218838;
+}
+
+.validate-btn:disabled:hover {
+    background-color: rgb(190, 50, 50);
+    color: white;
 }
 </style>
