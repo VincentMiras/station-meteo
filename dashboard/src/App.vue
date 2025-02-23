@@ -13,7 +13,9 @@ import HelloWorld from './components/HelloWorld.vue'
       <RouterLink to="/test">Test</RouterLink>
     </nav>
   </header>
-  <RouterView />
+  <main>
+    <RouterView />
+  </main>
 </template>
 
 <style scoped>
@@ -29,6 +31,10 @@ header {
   left: 0;
   width: 100%;
   height: 9vh;
+}
+
+main {
+  padding-top: 5vh;
 }
 
 .logo {
