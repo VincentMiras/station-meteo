@@ -8,5 +8,6 @@ const weatherStore = useWeatherStore();
 </script>
 
 <template>
+    <Temperature :temp="21"/>
     <Carte :coords="[[41,1]]"/>
 </template>
