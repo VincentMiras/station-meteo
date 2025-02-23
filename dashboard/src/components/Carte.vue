@@ -45,6 +45,5 @@ onMounted(() => {
 #map {
   width: 90hv;
   height: 80vh;
-  /* Prend toute la hauteur disponible */
 }
 </style>

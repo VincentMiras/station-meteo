@@ -1,12 +1,15 @@
 <script setup>
 import { computed } from 'vue';
+import { useRouter } from 'vue-router';
 import { useWeatherStore } from '@/stores/weatherStore';
 
+const router = useRouter();
 const weatherStore = useWeatherStore();
 
 const handleValidation = () => {
     console.log('Mesures sélectionnées :', weatherStore.queryParams);
     console.log('URL auto ?:', weatherStore.url_fetch);
+    router.push('/dashboard');
 };
 
 const isDisabled = computed(() =>

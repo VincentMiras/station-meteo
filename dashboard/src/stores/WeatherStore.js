@@ -9,9 +9,9 @@ export const useWeatherStore = defineStore('weather', () => {
 
     // Fonction pour convertir les dates en format UTC
     const formatToUTC = (dateStr) => {
-        if (!dateStr || dateStr === 'now') return 'now'; // Retourne "now" si la date est vide ou égale à "now"
+        if (!dateStr || dateStr === 'now') return '';
         const date = new Date(dateStr);
-        if (isNaN(date.getTime())) return 'now'; // Vérifie si la date est invalide
+        if (isNaN(date.getTime())) return '';
 
         return date.toISOString().replace(/[-:]/g, '').slice(0, 13) + 'Z'; // Format compact sans secondes
     };
