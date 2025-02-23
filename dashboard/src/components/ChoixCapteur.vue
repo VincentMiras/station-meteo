@@ -1,5 +1,5 @@
 <script setup>
-import { useWeatherStore } from '@/stores/weatherStore';
+import { useWeatherStore } from '@/stores/WeatherStore';
 
 const weatherStore = useWeatherStore();
 

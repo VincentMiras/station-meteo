@@ -1,19 +1,14 @@
 <script setup>
 import Carte from '@/components/mesure/Carte.vue';
-import Temperature from '@/components/mesure/Temperature.vue';
-import Pression from '@/components/mesure/Pression.vue';
-import Humidité from '@/components/mesure/Humidite.vue';
+import Mesure from '@/components/mesure/MesureUnique.vue';
 
-
-import { useWeatherStore } from '@/stores/weatherStore';
+import { useWeatherStore } from '@/stores/WeatherStore';
 
 const weatherStore = useWeatherStore();
 
 </script>
 
 <template>
-    <Humidité :humi="21"/>
-    <Pression :press="21"/>
-    <Temperature :temp="21"/>
+    <Mesure :titre="'Température'" :valeur="1" :unite="'°C'" />
     <Carte :coords="[[41,1]]"/>
 </template>
