@@ -1,33 +1,55 @@
 var express = require('express');
+const { InfluxDB } = require('@influxdata/influxdb-client');
 var router = express.Router();
 
 function sendError(res) {
     return res.status(400).json({
-    message: "A query argument is invalid"
+        message: "A query argument is invalid"
     });
 }
 
-/* GET home page. */
-router.get('/:list_capteur?', function(req, res, next) {
-    const url = 'influxdb://localhost:8086'
-    const capteurs = req.params.list_capteur;
-    const valid_Capteur=['date','temperature','pressure','humidity','lux','wind_heading','wind_speed_avg','rain','lat','long']
+const url = process.env.INFLUX_DB_URL || 'http://influxdb:8086';
+const valid_Capteur = ['date', 'temperature', 'pressure', 'humidity', 'lux', 'wind_heading', 'wind_speed_avg', 'rain', 'lat', 'long']
 
-    if (capteurs){
-        const listC=capteurs.split('-');
-        const listCapteur = Array.from(new Set(listC));
-        for (let element of listCapteur){
-            if (!valid_Capteur.includes(element)){
-                console.log("Capteur(s) inconnu")
-                return sendError(res);
-            }
-        }
-        return res.send(`Le paramètre listCapteur est : ${listCapteur}.`)
-    }
+router.get('/:list_capteur?', function (req, res, next) {
+    let capteurs = req.params.list_capteur;
 
     if (!capteurs) {
-        return res.send('Le paramètre list_capteur est manquant, mais la route fonctionne !');
+        capteurs = valid_Capteur.join('-');
     }
+    const listC = capteurs.split('-');
+    const listCapteur = Array.from(new Set(listC));
+    for (let element of listCapteur) {
+        if (!valid_Capteur.includes(element)) {
+            console.log("Capteur(s) inconnu")
+            return sendError(res);
+        }
+    }
+    const token = process.env.INFLUX_DB_TOKEN;
+    const org = process.env.INFLUX_DB_ORG;
+    const bucket = process.env.INFLUX_DB_BUCKET;
+
+    const client = new InfluxDB({ url, token });
+    const queryApi = client.getQueryApi(org);
+
+    async function fetchData(capteur) {
+        const query = `from(bucket: "${bucket}") |> range(start: -1h) |> filter(fn: (r) => r._measurement == "${capteur}" and r._field == "value") |> last()`;
+        try {
+            const data = await queryApi.collectRows(query);
+            return data.length > 0 ? data[0]._value : null;
+        } catch (error) {
+            console.error(`Error fetching data for ${capteur}:`, error);
+            return null;
+        }
+    }
+
+    (async () => {
+        const data = {};
+        for (let capteur of listCapteur) {
+            data[capteur] = await fetchData(capteur);
+        }
+        return res.status(200).json(data);
+    })();
 });
 
 module.exports = router;
