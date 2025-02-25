@@ -1,6 +1,9 @@
+import fs from 'fs';
+
 var express = require('express');
 const { InfluxDB } = require('@influxdata/influxdb-client');
 var router = express.Router();
+
 
 function sendError(res) {
     return res.status(400).json({
@@ -9,7 +12,16 @@ function sendError(res) {
 }
 
 const url = process.env.INFLUXDB_URL || 'http://piensg031.ensg.eu:8086';
+
+const token = fs.readFileSync(process.env.DOCKER_INFLUXDB_INIT_ADMIN_TOKEN_FILE, 'utf8').trim();
+const org = process.env.DOCKER_INFLUXDB_INIT_ORG || 'docs';
+const bucket = process.env.DOCKER_INFLUXDB_INIT_BUCKET || 'meteo';
+
+const client = new InfluxDB({ url, token });
+const queryApi = client.getQueryApi(org);
+
 const valid_Capteur = ['date', 'temperature', 'pressure', 'humidity', 'lux', 'wind_heading', 'wind_speed_avg', 'rain', 'lat', 'long'];
+
 
 const capteurMapping = {
     date: 'gps',
@@ -36,12 +48,7 @@ const unitMapping = {
     long: 'DD'
 };
 
-const token = process.env.DOCKER_INFLUXDB_INIT_ADMIN_TOKEN;
-const org = process.env.DOCKER_INFLUXDB_INIT_ORG || 'docs';
-const bucket = process.env.DOCKER_INFLUXDB_INIT_BUCKET || 'meteo';
 
-const client = new InfluxDB({ url, token });
-const queryApi = client.getQueryApi(org);
 
 router.get('/:list_capteur?', function (req, res, next) {
     let capteurs = req.params.list_capteur;
