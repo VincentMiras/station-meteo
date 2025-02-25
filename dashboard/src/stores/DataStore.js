@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
-import { useWeatherStore } from '@/stores/weatherStore';
+import { useWeatherStore } from '@/stores/WeatherStore';
 
 export const DataStore = defineStore('weatherData', () => {
     const weatherStore = useWeatherStore();
@@ -12,7 +12,10 @@ export const DataStore = defineStore('weatherData', () => {
     const fetchWeatherData = async () => {
         if (!weatherStore.url_fetch) return;
 
-        if (abortController) abortController.abort();
+        if (abortController) {
+            abortController.abort();
+            console.log('abandon fetch')
+        }
         abortController = new AbortController();
 
         loading.value = true;
