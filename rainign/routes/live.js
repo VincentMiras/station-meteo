@@ -95,8 +95,10 @@ router.get('/:list_capteur?', function (req, res, next) {
         const response = {
             id: 31,
             unit: filteredUnitMapping,
-            date: new Date().toISOString(),
-            data: data
+            data: {
+                date: new Date().toISOString(),
+                ...data
+            }
         };
         return res.status(200).json(response);
     })();
