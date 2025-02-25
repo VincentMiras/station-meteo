@@ -1,4 +1,4 @@
-import fs from 'fs';
+var fs = require('fs');
 
 var express = require('express');
 const { InfluxDB } = require('@influxdata/influxdb-client');
