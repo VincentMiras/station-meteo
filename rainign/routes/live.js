@@ -24,9 +24,21 @@ const capteurMapping = {
     long: 'gps'
 };
 
+const unitMapping = {
+    temperature: 'C',
+    pressure: 'hP',
+    humidity: '%',
+    rain: 'mm/m2',
+    lux: 'Lux',
+    wind_heading: '°',
+    wind_speed_avg: 'km/h',
+    lat: 'DD',
+    long: 'DD'
+};
+
 const token = process.env.DOCKER_INFLUXDB_INIT_ADMIN_TOKEN;
-const org = process.env.INFLUX_DB_ORG;
-const bucket = process.env.INFLUX_DB_BUCKET;
+const org = process.env.DOCKER_INFLUXDB_INIT_ORG || 'docs';
+const bucket = process.env.DOCKER_INFLUXDB_INIT_BUCKET || 'meteo';
 
 const client = new InfluxDB({ url, token });
 const queryApi = client.getQueryApi(org);
@@ -71,7 +83,12 @@ router.get('/:list_capteur?', function (req, res, next) {
         for (let capteur of listCapteur) {
             data[capteur] = await fetchData(capteur);
         }
-        return res.status(200).json(data);
+        const response = {
+            id: 31,
+            unit: unitMapping,
+            data: data
+        };
+        return res.status(200).json(response);
     })();
 });
 

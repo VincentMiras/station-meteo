@@ -54,11 +54,6 @@ services:
     depends_on:
       - influxdb
 secrets:
-
-  influxdb2-admin-username:
-    file: ./.password/.env.influxdb2-admin-username
-  influxdb2-admin-password:
-    file: ./.password/.env.influxdb2-admin-password
   influxdb2-admin-token:
     file: ./.password/.env.influxdb2-admin-token
 volumes:
