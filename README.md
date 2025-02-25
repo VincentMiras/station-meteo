@@ -1,3 +1,7 @@
+<h1 align="center">
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:FF5733,100:FFC300&height=115&section=header"/>
+</h1>
+
 # Station Météo 🌦️
 <p align="center">
     <img src="images/station.png" alt="illustration" width="200"/>
@@ -15,3 +19,7 @@ The data is stored in an InfluxDB database and visualised using a Vue.js fronten
 ## Table of contents
 * [Features](#features)
 * [Install](#install)
+
+<h1 align="center">
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:FF5733,100:FFC300&height=115&section=header"/>
+</h1>
