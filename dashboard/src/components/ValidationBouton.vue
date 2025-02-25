@@ -13,7 +13,7 @@ const handleValidation = () => {
 };
 
 const isDisabled = computed(() =>
-    weatherStore.mode === 'sample' && !weatherStore.startDate || weatherStore.selectedMeasures.length === 0 || weatherStore.selectedMeasures.length === 0
+    weatherStore.mode === 'sample' && !weatherStore.startDate || weatherStore.selectedMeasures.length === 0 || weatherStore.station.length === 0
 );
 
 </script>

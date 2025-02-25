@@ -1,104 +1,74 @@
-<script setup>
-import { computed, defineProps } from 'vue';
-import { Line } from 'vue-chartjs';
-import {
-  Chart as ChartJS,
-  Title,
-  Tooltip,
-  Legend,
-  LineElement,
-  LinearScale,
-  PointElement,
-  TimeScale,
-  TimeSeriesScale
-} from 'chart.js';
-import 'chartjs-adapter-date-fns'; // Adapter pour gérer les dates correctement
-
-// Enregistrement des composants nécessaires
-ChartJS.register(Title, Tooltip, Legend, LineElement, LinearScale, PointElement, TimeScale, TimeSeriesScale);
-
-const props = defineProps({
-  titre: { type: String, required: true },
-  data: { type: Array, required: true } // [{ time: '2025-02-23T14:00:00Z', value: 12 }, ...]
-});
-
-// Définition de la palette de couleur dynamique
-const getGradientColor = (temp) => {
-  const colorStops = [
-    { temp: -10, color: 'blue' },
-    { temp: 0, color: 'cyan' },
-    { temp: 10, color: 'green' },
-    { temp: 20, color: 'yellow' },
-    { temp: 30, color: 'orange' },
-    { temp: 40, color: 'red' }
-  ];
-
-  for (let i = 0; i < colorStops.length - 1; i++) {
-    if (temp >= colorStops[i].temp && temp <= colorStops[i + 1].temp) {
-      return colorStops[i].color;
-    }
-  }
-  return 'black';
-};
-
-// Transformation des données pour Chart.js
-const chartData = computed(() => ({
-  labels: props.data.map(d => d.time), // On garde les dates brutes (ISO format)
-  datasets: [{
-    label: props.titre,
-    data: props.data.map(d => ({ x: d.time, y: d.value })), // Format correct pour un axe temporel
-    borderColor: props.data.map(d => getGradientColor(d.value)),
-    backgroundColor: 'rgba(255, 99, 132, 0.2)',
-    borderWidth: 2,
-    pointRadius: 5,
-    pointBackgroundColor: props.data.map(d => getGradientColor(d.value))
-  }]
-}));
-
-const chartOptions = computed(() => ({
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: { display: false },
-    tooltip: { enabled: true }
-  },
-  scales: {
-    x: {
-      type: 'time', // 📌 Utilisation du bon type d'axe X
-      time: {
-        unit: 'hour', // 📌 Format de temps (peut être 'minute', 'day', etc.)
-        tooltipFormat: 'yyyy-MM-dd HH:mm'
-      },
-      title: { display: true, text: 'Temps' }
-    },
-    y: {
-      title: { display: true, text: 'Température (°C)' }
-    }
-  }
-}));
-</script>
-
 <template>
-  <div class="chart-container">
-    <h3>{{ titre }}</h3>
-    <Line v-if="data.length" :data="chartData" :options="chartOptions" />
-    <p v-else>Aucune donnée disponible</p>
+  <div>
+    <canvas ref="myChart"></canvas>
   </div>
 </template>
 
+<script setup>
+import { onMounted, ref } from 'vue';
+
+// Définir les props
+const props = defineProps({
+  titre: {
+    type: String,
+    required: true,
+  },
+  valeur: {
+    type: Array,
+    required: true,
+  },
+  dates: {
+    type: Array,
+    required: true,
+  },
+});
+
+// Référence au canvas
+const myChart = ref(null);
+
+onMounted(() => {
+  // Vérifier si Chart.js est déjà chargé dans le navigateur
+  if (window.Chart) {
+    renderChart();
+  } else {
+    const script = document.createElement('script');
+    script.src = "https://cdn.jsdelivr.net/npm/chart.js";
+    script.onload = renderChart; // Exécuter la fonction une fois le script chargé
+    document.head.appendChild(script);
+  }
+});
+
+// Fonction pour créer le graphique
+function renderChart() {
+  const ctx = myChart.value.getContext('2d');
+  new Chart(ctx, {
+    type: 'line', // Change le type de graphique à "line" pour une courbe
+    data: {
+      labels: props.dates, // Utilisation des dates en tant que labels
+      datasets: [{
+        label: props.titre, // Utilisation du titre en tant que label du dataset
+        data: props.valeur, // Utilisation des valeurs passées dans les props
+        fill: false, // Ne pas remplir la courbe sous la ligne
+        borderColor: 'rgba(75, 192, 192, 1)', // Couleur de la ligne
+        tension: 0.4, // Arrondir les courbes (facultatif, à ajuster selon le besoin)
+        borderWidth: 2, // Largeur de la ligne
+        pointBackgroundColor: 'rgba(75, 192, 192, 1)', // Couleur des points
+        pointRadius: 5, // Taille des points
+        pointHoverRadius: 7, // Taille des points au survol
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: {
+          beginAtZero: true,
+        },
+      },
+    },
+  });
+}
+</script>
+
 <style scoped>
-.chart-container {
-  width: 100%;
-  max-width: 600px;
-  margin: 20px auto;
-  padding: 20px;
-  background: #f9f9f9;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  text-align: center;
-}
-h3 {
-  color: #333;
-  margin-bottom: 10px;
-}
+/* Styles spécifiques à votre composant */
 </style>
