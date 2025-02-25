@@ -8,8 +8,8 @@ import HelloWorld from './components/HelloWorld.vue'
     <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
     <nav>
       <RouterLink to="/">Home</RouterLink>
-      <RouterLink to="/live">Live</RouterLink>
-      <RouterLink to="/sample">Sample</RouterLink>
+      <RouterLink to="/liveview">Live</RouterLink>
+      <RouterLink to="/sampleview">Sample</RouterLink>
       <RouterLink to="/test">Test</RouterLink>
     </nav>
   </header>
