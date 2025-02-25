@@ -24,6 +24,13 @@ const capteurMapping = {
     long: 'gps'
 };
 
+const token = fs.readFileSync(process.env.DOCKER_INFLUXDB_INIT_ADMIN_TOKEN_FILE, 'utf8').trim();
+const org = process.env.INFLUX_DB_ORG;
+const bucket = process.env.INFLUX_DB_BUCKET;
+
+const client = new InfluxDB({ url, token });
+const queryApi = client.getQueryApi(org);
+
 router.get('/:list_capteur?', function (req, res, next) {
     let capteurs = req.params.list_capteur;
 
@@ -38,12 +45,6 @@ router.get('/:list_capteur?', function (req, res, next) {
             return sendError(res);
         }
     }
-    const token = process.env.INFLUX_DB_TOKEN;
-    const org = process.env.INFLUX_DB_ORG;
-    const bucket = process.env.INFLUX_DB_BUCKET;
-
-    const client = new InfluxDB({ url, token });
-    const queryApi = client.getQueryApi(org);
 
     async function fetchData(capteur) {
         const measurement = capteurMapping[capteur];
@@ -51,6 +52,8 @@ router.get('/:list_capteur?', function (req, res, next) {
         if (capteur === 'lat' || capteur === 'long') {
             const field = capteur === 'lat' ? 'latitude' : 'longitude';
             query = `from(bucket: "${bucket}") |> range(start: -1h) |> filter(fn: (r) => r._measurement == "${measurement}" and r._field == "${field}") |> last()`;
+        } else if (capteur === 'date') {
+            return new Date().toISOString();
         } else {
             query = `from(bucket: "${bucket}") |> range(start: -1h) |> filter(fn: (r) => r._measurement == "${measurement}" and r._field == "value") |> last()`;
         }
