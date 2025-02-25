@@ -1,6 +1,9 @@
+import fs from 'fs';
+
 var express = require('express');
 const { InfluxDB } = require('@influxdata/influxdb-client');
 var router = express.Router();
+
 
 function sendError(res) {
     return res.status(400).json({
@@ -36,7 +39,7 @@ const unitMapping = {
     long: 'DD'
 };
 
-const token = process.env.DOCKER_INFLUXDB_INIT_ADMIN_TOKEN;
+const token = fs.readFileSync(process.env.DOCKER_INFLUXDB_INIT_ADMIN_TOKEN_FILE, 'utf8').trim();
 const org = process.env.DOCKER_INFLUXDB_INIT_ORG || 'docs';
 const bucket = process.env.DOCKER_INFLUXDB_INIT_BUCKET || 'meteo';
 
