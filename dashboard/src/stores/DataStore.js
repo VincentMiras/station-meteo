@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
 import { useWeatherStore } from '@/stores/WeatherStore';
 
-export const DataStore = defineStore('weatherData', () => {
+export const useDataStore = defineStore('weatherData', () => {
     const weatherStore = useWeatherStore();
     const data = ref(null);
     const loading = ref(false);

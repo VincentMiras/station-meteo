@@ -1,12 +1,18 @@
 <script setup>
 import { useWeatherStore } from '@/stores/WeatherStore';
+import { useDataStore } from '@/stores/DataStore';
 import Mesure from '@/components/mesure/MesureUnique.vue';
 import Carte from '@/components/mesure/Carte.vue';
 
 const weatherStore = useWeatherStore();
+const dataStore = useDataStore();
 
 const mesures = weatherStore.selectedMeasures;
-const weatherData = weatherStore.data || {
+
+
+const data = weatherStore.data;
+
+const weatherData = data || {
     temperature: -15,
     pressure: 1013,
     humidity: 75,
