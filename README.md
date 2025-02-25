@@ -21,5 +21,5 @@ The data is stored in an InfluxDB database and visualised using a Vue.js fronten
 * [Install](#install)
 
 <h1 align="center">
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:FF5733,100:FFC300&height=115&section=header"/>
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:FF5733,100:FFC300&height=115&reversal=true&section=footer"/>
 </h1>
