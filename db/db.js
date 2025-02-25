@@ -2,22 +2,20 @@ import { InfluxDB, Point } from '@influxdata/influxdb-client';
 import fs from 'fs';
 import nmea from 'nmea-simple';
 
-
 const gpsFilePath = '/dev/shm/gpsNmea';
 const rainFilePath = '/dev/shm/rainCounter.log';
 const sensorFilePath = '/dev/shm/sensors';
 const tphFilePath = '/dev/shm/tph.log';
 
 const token = fs.readFileSync(process.env.DOCKER_INFLUXDB_INIT_ADMIN_TOKEN_FILE, 'utf8').trim();
-
 const url = process.env.INFLUXDB_URL || 'http://piensg031.ensg.eu:8086';
 
-const client = new InfluxDB({ url, token })
+const client = new InfluxDB({ url, token });
 
 let org = process.env.DOCKER_INFLUXDB_INIT_ORG;
 let bucket = process.env.DOCKER_INFLUXDB_INIT_BUCKET;
 
-let writeClient = client.getWriteApi(org, bucket, 'ns')
+let writeClient = client.getWriteApi(org, bucket, 'ns');
 
 const fileLineCount = {
     gps: 0,
@@ -25,8 +23,6 @@ const fileLineCount = {
     sensor: 0,
     tph: 0
 };
-
-
 
 fs.watchFile(gpsFilePath, () => {
     const lines = fs.readFileSync(gpsFilePath, 'utf8').split('\n');
@@ -41,28 +37,30 @@ fs.watchFile(gpsFilePath, () => {
         newLines.forEach(line => {
             try {
                 line = line.trim();
-                const packet = nmea.parseNmeaSentence(line);
+                if (line) {
+                    const packet = nmea.parseNmeaSentence(line);
 
-                if (["RMC", "GGA", "GSA"].includes(packet.sentenceId)) {
-                    const point = new Point('gps')
-                        .tag('sentenceId', packet.sentenceId)
-                        .timestamp(new Date());
+                    if (["RMC", "GGA", "GSA"].includes(packet.sentenceId)) {
+                        const point = new Point('gps')
+                            .tag('sentenceId', packet.sentenceId)
+                            .timestamp(new Date());
 
-                    if (packet.sentenceId === "RMC" && packet.status === "valid") {
-                        point.floatField('latitude', packet.latitude)
-                            .floatField('longitude', packet.longitude);
+                        if (packet.sentenceId === "RMC" && packet.status === "valid") {
+                            point.floatField('latitude', packet.latitude)
+                                .floatField('longitude', packet.longitude);
+                        }
+
+                        if (packet.sentenceId === "GGA" && packet.fixType !== "none") {
+                            point.floatField('latitude', packet.latitude)
+                                .floatField('longitude', packet.longitude);
+                        }
+
+                        if (packet.sentenceId === "GSA") {
+                            point.intField('satellites', packet.satellites.length);
+                        }
+                        writeClient.writePoint(point);
+                        console.log(`GPS Data written to DB: ${JSON.stringify(packet)}`);
                     }
-
-                    if (packet.sentenceId === "GGA" && packet.fixType !== "none") {
-                        point.floatField('latitude', packet.latitude)
-                            .floatField('longitude', packet.longitude);
-                    }
-
-                    if (packet.sentenceId === "GSA") {
-                        point.intField('satellites', packet.satellites.length);
-                    }
-                    writeClient.writePoint(point);
-                    // console.log(`GPS Data written to DB: ${JSON.stringify(packet)}`);
                 }
             } catch (error) {
                 console.error("Got bad packet:", line, error);
@@ -86,11 +84,13 @@ fs.watchFile(rainFilePath, () => {
         newLines.forEach(line => {
             try {
                 line = line.trim();
-                const point = new Point('rain')
-                point.timestamp(new Date())
-                    .intField('rain', 1);
-                writeClient.writePoint(point);
-                // console.log(`Rain Data written to DB: ${line}`);
+                if (line) {
+                    const point = new Point('rain')
+                    point.timestamp(new Date())
+                        .intField('rain', 1);
+                    writeClient.writePoint(point);
+                    console.log(`Rain Data written to DB: ${line}`);
+                }
             } catch (error) {
                 console.error("Got bad packet:", line, error);
                 console.log(`Rain Data not written to DB: ${line}`);
@@ -113,18 +113,20 @@ fs.watchFile(sensorFilePath, () => {
         newLines.forEach(line => {
             try {
                 line = line.trim();
-                const data = JSON.parse(line);
-                const timestamp = new Date(data.date);
-                data.measure.forEach(measurement => {
-                    if (!["temperature", "pressure", "humidity"].includes(measurement.name)) {
-                        const point = new Point(measurement.name)
-                            .timestamp(timestamp)
-                            .floatField('value', parseFloat(measurement.value))
-                            .tag('unit', measurement.unit);
-                        writeClient.writePoint(point);
-                        // console.log(`Sensor Data written to DB: ${JSON.stringify(measurement)}`);
-                    }
-                });
+                if (line) {
+                    const data = JSON.parse(line);
+                    const timestamp = new Date(data.date);
+                    data.measure.forEach(measurement => {
+                        if (!["temperature", "pressure", "humidity"].includes(measurement.name)) {
+                            const point = new Point(measurement.name)
+                                .timestamp(timestamp)
+                                .floatField('value', parseFloat(measurement.value))
+                                .tag('unit', measurement.unit);
+                            writeClient.writePoint(point);
+                            console.log(`Sensor Data written to DB: ${JSON.stringify(measurement)}`);
+                        }
+                    });
+                }
             } catch (error) {
                 console.error("Got bad packet:", line, error);
                 console.log(`Sensor Data not written to DB: ${line}`);
@@ -147,24 +149,26 @@ fs.watchFile(tphFilePath, () => {
         newLines.forEach(line => {
             try {
                 line = line.trim();
-                const data = JSON.parse(line);
-                const timestamp = new Date(data.date);
-                const tempPoint = new Point('temperature')
-                    .timestamp(timestamp)
-                    .floatField('value', data.temp)
-                    .tag('unit', 'C');
-                const hygroPoint = new Point('humidity')
-                    .timestamp(timestamp)
-                    .floatField('value', data.hygro)
-                    .tag('unit', '%');
-                const pressPoint = new Point('pressure')
-                    .timestamp(timestamp)
-                    .floatField('value', data.press)
-                    .tag('unit', 'hPa');
-                writeClient.writePoint(tempPoint);
-                writeClient.writePoint(hygroPoint);
-                writeClient.writePoint(pressPoint);
-                // console.log(`TPH Data written to DB: ${JSON.stringify(data)}`);
+                if (line) {
+                    const data = JSON.parse(line);
+                    const timestamp = new Date(data.date);
+                    const tempPoint = new Point('temperature')
+                        .timestamp(timestamp)
+                        .floatField('value', data.temp)
+                        .tag('unit', 'C');
+                    const hygroPoint = new Point('humidity')
+                        .timestamp(timestamp)
+                        .floatField('value', data.hygro)
+                        .tag('unit', '%');
+                    const pressPoint = new Point('pressure')
+                        .timestamp(timestamp)
+                        .floatField('value', data.press)
+                        .tag('unit', 'hPa');
+                    writeClient.writePoint(tempPoint);
+                    writeClient.writePoint(hygroPoint);
+                    writeClient.writePoint(pressPoint);
+                    console.log(`TPH Data written to DB: ${JSON.stringify(data)}`);
+                }
             } catch (error) {
                 console.error("Got bad packet:", line, error);
                 console.log(`TPH Data not written to DB: ${line}`);
