@@ -8,7 +8,7 @@ function sendError(res) {
     });
 }
 
-const url = process.env.INFLUX_DB_URL || 'http://influxdb:8086';
+const url = process.env.INFLUXDB_URL || 'http://piensg031.ensg.eu:8086';
 const valid_Capteur = ['date', 'temperature', 'pressure', 'humidity', 'lux', 'wind_heading', 'wind_speed_avg', 'rain', 'lat', 'long'];
 
 const capteurMapping = {
