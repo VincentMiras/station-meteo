@@ -31,10 +31,11 @@ header {
   left: 0;
   width: 100%;
   height: 9vh;
+  z-index: 1000;
 }
 
 main {
-  padding-top: 5vh;
+  padding-top: 7vh;
 }
 
 .logo {
