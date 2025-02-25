@@ -9,7 +9,20 @@ function sendError(res) {
 }
 
 const url = process.env.INFLUX_DB_URL || 'http://influxdb:8086';
-const valid_Capteur = ['date', 'temperature', 'pressure', 'humidity', 'lux', 'wind_heading', 'wind_speed_avg', 'rain', 'lat', 'long']
+const valid_Capteur = ['date', 'temperature', 'pressure', 'humidity', 'lux', 'wind_heading', 'wind_speed_avg', 'rain', 'lat', 'long'];
+
+const capteurMapping = {
+    date: 'gps',
+    temperature: 'temperature',
+    pressure: 'pressure',
+    humidity: 'humidity',
+    lux: 'luminosity',
+    wind_heading: 'wind_heading',
+    wind_speed_avg: 'wind_speed_avg',
+    rain: 'rain',
+    lat: 'gps',
+    long: 'gps'
+};
 
 router.get('/:list_capteur?', function (req, res, next) {
     let capteurs = req.params.list_capteur;
@@ -33,7 +46,14 @@ router.get('/:list_capteur?', function (req, res, next) {
     const queryApi = client.getQueryApi(org);
 
     async function fetchData(capteur) {
-        const query = `from(bucket: "${bucket}") |> range(start: -1h) |> filter(fn: (r) => r._measurement == "${capteur}" and r._field == "value") |> last()`;
+        const measurement = capteurMapping[capteur];
+        let query;
+        if (capteur === 'lat' || capteur === 'long') {
+            const field = capteur === 'lat' ? 'latitude' : 'longitude';
+            query = `from(bucket: "${bucket}") |> range(start: -1h) |> filter(fn: (r) => r._measurement == "${measurement}" and r._field == "${field}") |> last()`;
+        } else {
+            query = `from(bucket: "${bucket}") |> range(start: -1h) |> filter(fn: (r) => r._measurement == "${measurement}" and r._field == "value") |> last()`;
+        }
         try {
             const data = await queryApi.collectRows(query);
             return data.length > 0 ? data[0]._value : null;
