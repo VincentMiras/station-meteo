@@ -30,8 +30,8 @@ export const useWeatherStore = defineStore('weather', () => {
     const url_fetch = computed(() => {
         return station.value.map(stationId =>
             mode.value === 'live'
-                ? `https://${stationId}.ensg.eu:3000/live/${selectedMeasures.value.join('-')}`
-                : `https://${stationId}.ensg.eu:3000/sample/${queryParams.value.sdate}/${queryParams.value.edate}/${selectedMeasures.value.join('-')}`
+                ? `http://${stationId}.ensg.eu:3000/live/${selectedMeasures.value.join('-')}`
+                : `http://${stationId}.ensg.eu:3000/sample/${queryParams.value.sdate}/${queryParams.value.edate}/${selectedMeasures.value.join('-')}`
         );
     });
 

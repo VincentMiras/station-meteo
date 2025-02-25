@@ -2,19 +2,31 @@
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useWeatherStore } from '@/stores/WeatherStore';
+import { useDataStore } from '@/stores/DataStore';
+
 
 const router = useRouter();
 const weatherStore = useWeatherStore();
+const dataStore = useDataStore();
 
-const handleValidation = () => {
+const handleValidation = async () => {
     console.log('Mesures sélectionnées :', weatherStore.queryParams);
     console.log('URL auto ?:', weatherStore.url_fetch);
-    router.push('/dashboard');
+    await fetchData();
 };
+
 
 const isDisabled = computed(() =>
     weatherStore.mode === 'sample' && !weatherStore.startDate || weatherStore.selectedMeasures.length === 0 || weatherStore.station.length === 0
 );
+
+async function fetchData() {
+    await dataStore.fetchWeatherData; // Attendre que fetchWeatherData se termine
+    console.log('Données récupérées:', dataStore.data);
+    router.push('/dashboard');
+}
+
+
 
 </script>
 

@@ -8,20 +8,9 @@ const weatherStore = useWeatherStore();
 const dataStore = useDataStore();
 
 const mesures = weatherStore.selectedMeasures;
-
-
-const data = weatherStore.data;
-
-const weatherData = data || {
-    temperature: -15,
-    pressure: 1013,
-    humidity: 75,
-    rain: 0,
-    luminosity: 120,
-    wind_heading: 180,
-    wind_speed_avg: 20,
-    position: [[41, 1]]
-};
+const weatherData = dataStore.data;
+const loading = dataStore.loading;
+const error = dataStore.error;
 
 const getUnitForKey = (key) => {
     const units = {
@@ -38,16 +27,16 @@ const getUnitForKey = (key) => {
 </script>
 
 <template>
-    <div v-if="mesures.length > 0">
+    <div v-if="loading">Chargement...</div>
+    <div v-else-if="error">Erreur: {{ error }}</div>
+    <div v-else>
         <div v-for="(measure, index) in mesures" :key="index">
-            <template v-if="measure === 'position'">
+            <template v-if="measure === 'position' && weatherData?.position">
                 <Carte :coords="weatherData.position" />
             </template>
-
             <template v-else>
                 <Mesure :titre="measure" :valeur="weatherData[measure]" :unite="getUnitForKey(measure)" />
             </template>
         </div>
     </div>
-
 </template>
