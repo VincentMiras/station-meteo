@@ -24,7 +24,7 @@ const capteurMapping = {
     long: 'gps'
 };
 
-const token = fs.readFileSync(process.env.DOCKER_INFLUXDB_INIT_ADMIN_TOKEN_FILE, 'utf8').trim();
+const token = process.env.DOCKER_INFLUXDB_INIT_ADMIN_TOKEN;
 const org = process.env.INFLUX_DB_ORG;
 const bucket = process.env.INFLUX_DB_BUCKET;
 
