@@ -25,8 +25,8 @@ const capteurMapping = {
 };
 
 const token = process.env.DOCKER_INFLUXDB_INIT_ADMIN_TOKEN;
-const org = process.env.INFLUX_DB_ORG;
-const bucket = process.env.INFLUX_DB_BUCKET;
+const org = process.env.DOCKER_INFLUXDB_INIT_ORG || 'docs';
+const bucket = process.env.DOCKER_INFLUXDB_INIT_BUCKET || 'meteo';
 
 const client = new InfluxDB({ url, token });
 const queryApi = client.getQueryApi(org);
