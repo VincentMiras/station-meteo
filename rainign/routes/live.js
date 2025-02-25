@@ -20,11 +20,10 @@ const bucket = process.env.DOCKER_INFLUXDB_INIT_BUCKET || 'meteo';
 const client = new InfluxDB({ url, token });
 const queryApi = client.getQueryApi(org);
 
-const valid_Capteur = ['date', 'temperature', 'pressure', 'humidity', 'lux', 'wind_heading', 'wind_speed_avg', 'rain', 'lat', 'long'];
+const valid_Capteur = ['temperature', 'pressure', 'humidity', 'lux', 'wind_heading', 'wind_speed_avg', 'rain', 'lat', 'long'];
 
 
 const capteurMapping = {
-    date: 'gps',
     temperature: 'temperature',
     pressure: 'pressure',
     humidity: 'humidity',
@@ -71,8 +70,6 @@ router.get('/:list_capteur?', function (req, res, next) {
         if (capteur === 'lat' || capteur === 'long') {
             const field = capteur === 'lat' ? 'latitude' : 'longitude';
             query = `from(bucket: "${bucket}") |> range(start: -1h) |> filter(fn: (r) => r._measurement == "${measurement}" and r._field == "${field}") |> last()`;
-        } else if (capteur === 'date') {
-            return new Date().toISOString();
         } else {
             query = `from(bucket: "${bucket}") |> range(start: -1h) |> filter(fn: (r) => r._measurement == "${measurement}" and r._field == "value") |> last()`;
         }
@@ -90,9 +87,15 @@ router.get('/:list_capteur?', function (req, res, next) {
         for (let capteur of listCapteur) {
             data[capteur] = await fetchData(capteur);
         }
+        const filteredUnitMapping = {};
+        for (let capteur of listCapteur) {
+            filteredUnitMapping[capteur] = unitMapping[capteur];
+        }
+
         const response = {
             id: 31,
-            unit: unitMapping,
+            unit: filteredUnitMapping,
+            date: new Date().toISOString(),
             data: data
         };
         return res.status(200).json(response);

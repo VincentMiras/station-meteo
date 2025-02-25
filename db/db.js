@@ -65,7 +65,7 @@ const processGpsLine = (line) => {
 const processRainLine = (line) => {
     const point = new Point('rain')
         .timestamp(new Date())
-        .intField('rain', 1);
+        .intField('value', 1);
     writeClient.writePoint(point);
     console.log(`Rain Data written to DB: ${line}`);
 };
