@@ -13,12 +13,11 @@ let lien =weatherStore.mode;
 const handleValidation = async () => {
     console.log('Mesures sélectionnées :', weatherStore.queryParams);
     console.log('URL auto ?:', weatherStore.url_fetch);
-    router.push('/dashboard'+lien);
 
     try {
         dataStore.data = await fetchData(weatherStore.url_fetch);
         console.log('Données récupérées:', dataStore.data);
-        
+        router.push('/dashboard'+lien);
 
     } catch (error) {
         console.error('Une erreur s\'est produite, impossible de récupérer les données', error);

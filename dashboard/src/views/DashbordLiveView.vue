@@ -10,8 +10,6 @@ const dataStore = useDataStore();
 
 const mesures = weatherStore.selectedMeasures;
 const weatherData = dataStore.data;
-const loading = dataStore.loading;
-const error = dataStore.error;
 
 let json = weatherData;
 if (isProxy(weatherData)){
