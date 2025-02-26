@@ -1,7 +1,7 @@
 <script setup>
 import { useWeatherStore } from '@/stores/WeatherStore';
 import { useDataStore } from '@/stores/DataStore';
-import { Graphe } from '@/components/mesure/Graphe.vue';
+import Graphe from '@/components/mesure/Graphe.vue';
 import { isProxy, toRaw } from 'vue';
 
 const weatherStore = useWeatherStore();
@@ -15,10 +15,15 @@ const graphType = 'line';
 
 let json = weatherData;
 if (isProxy(weatherData)) {
-    json = toRaw(weatherData)
+    json = toRaw(weatherData);
 }
 
-console.log(json)
+const parsedData = Object.keys(json.data)
+    .filter(key => key !== 'id' && key !== 'unit')
+    .map(key => ({
+        date: key,
+        ...json.data[key]
+    }));
 
 const getUnitForKey = (key) => {
     const units = {
@@ -35,13 +40,24 @@ const getUnitForKey = (key) => {
 </script>
 
 <template>
-    <div>
-        <div>
-            <div v-for="mesure in mesures" :key="mesure">
-                <h2>{{ mesure }}</h2>
-                <Graphe :titre="mesure" :valeur="json.map(item => item[mesure])" :dates="json.map(item => item.date)"
-                    :type="graphType" />
-            </div>
+    <div class="graphs-container">
+        <div v-for="mesure in mesures" :key="mesure" class="graph-item">
+            <h2>{{ mesure }}</h2>
+            <Graphe :titre="mesure" :valeur="parsedData.map(item => item[mesure])"
+                :dates="parsedData.map(item => item.date)" :type="graphType" />
         </div>
     </div>
 </template>
+
+<style scoped>
+.graphs-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.graph-item {
+    flex: 1 1 calc(33.333% - 20px);
+    box-sizing: border-box;
+}
+</style>
