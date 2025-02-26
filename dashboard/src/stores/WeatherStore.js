@@ -14,7 +14,7 @@ export const useWeatherStore = defineStore('weather', () => {
         const date = new Date(dateStr);
         if (isNaN(date.getTime())) return '';
 
-        return date.toISOString().replace(/[-:]/g, '').slice(0, 13) + 'Z'; // Format compact sans secondes
+        return date.toISOString(); // Format with seconds
     };
 
     // Génération des paramètres de requête
@@ -26,15 +26,26 @@ export const useWeatherStore = defineStore('weather', () => {
         edate: (endDate.value === '' || endDate.value === 'now') ? 'now' : formatToUTC(endDate.value),
     }));
 
+    const queryMesures = computed(() => {
+        // Créer une copie de selectedMeasures sans 'position'
+        const measures = selectedMeasures.value.filter(measure => measure !== 'position');
+
+        // Si 'position' est dans selectedMeasures, ajouter 'lat' et 'lon'
+        if (selectedMeasures.value.includes('position')) {
+            measures.push('lat', 'lon');
+        }
+
+        return measures;
+    });
+
     // Génération de l'URL de fetch
     const url_fetch = computed(() => {
         return station.value.map(stationId =>
             mode.value === 'live'
-                ? `https://${stationId}.ensg.eu:3000/live/${selectedMeasures.value.join('-')}`
-                : `https://${stationId}.ensg.eu:3000/sample/${queryParams.value.sdate}/${queryParams.value.edate}/${selectedMeasures.value.join('-')}`
+                ? `http://${stationId}.ensg.eu:3000/live/${queryMesures.value.join('-')}`
+                : `http://${stationId}.ensg.eu:3000/sample/${queryParams.value.sdate}/${queryParams.value.edate}/${queryMesures.value.join('-')}`
         );
     });
 
-
-    return { mode, selectedMeasures, station, startDate, endDate, queryParams, url_fetch };
+    return { mode, selectedMeasures, station, startDate, endDate, queryParams, url_fetch, queryMesures };
 });

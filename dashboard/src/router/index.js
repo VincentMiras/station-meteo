@@ -20,9 +20,14 @@ const router = createRouter({
       component: () => import('../views/SampleView.vue'),
     },
     {
-      path: '/dashboard',
-      name: 'dashboard',
-      component: () => import('../views/DashbordView.vue'),
+      path: '/dashboardlive',
+      name: 'dashboardlive',
+      component: () => import('../views/DashbordLiveView.vue'),
+    },
+    {
+      path: '/dashboardsample',
+      name: 'dashboardsample',
+      component: () => import('../views/DashboardSampleView.vue'),
     },
     {
       path: '/test',

@@ -73,23 +73,31 @@ const textGradient = computed(() => {
 
 <style scoped>
 .measure-container {
-    padding: 15px;
+    padding: 2vh;
     background: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 2vh;
+    box-shadow: 0 1vh 2vh rgba(0, 0, 0, 0.15);
     text-align: center;
-    max-width: 300px;
-    margin: 20px auto;
+    max-width: 60vh;
+    margin: 3vh auto;
     font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.measure-container:hover {
+    transform: scale(1.05);
 }
 
 h3 {
     color: #333;
-    margin-bottom: 10px;
+    margin-bottom: 1vh;
+    font-size: 3vh;
 }
 
 .value {
-    font-size: 24px;
+    font-size: 4vh;
     font-weight: bold;
+    color: #444;
 }
 </style>
+
