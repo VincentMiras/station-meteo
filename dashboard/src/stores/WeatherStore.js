@@ -26,6 +26,15 @@ export const useWeatherStore = defineStore('weather', () => {
         edate: (endDate.value === '' || endDate.value === 'now') ? 'now' : formatToUTC(endDate.value),
     }));
 
+    const queryMesures = computed(() => {
+        const measures = [...selectedMeasures.value];
+        if (selectedMeasures.value.includes('position')) {
+            measures.push('lat', 'lon');
+        }
+
+        return measures;
+    });
+
     // Génération de l'URL de fetch
     const url_fetch = computed(() => {
         return station.value.map(stationId =>
@@ -36,5 +45,5 @@ export const useWeatherStore = defineStore('weather', () => {
     });
 
 
-    return { mode, selectedMeasures, station, startDate, endDate, queryParams, url_fetch };
+    return { mode, selectedMeasures, station, startDate, endDate, queryParams, url_fetch, queryMesures };
 });
