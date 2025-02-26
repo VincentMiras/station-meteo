@@ -63,7 +63,7 @@ const decimalPlaces = {
 
 router.get('/:start/:end?/:list_capteur?', async function (req, res, next) {
     const startDate = req.params.start;
-    const endDate = req.params.end;
+    let endDate = req.params.end;
     if (endDate === 'now') {
         endDate = new Date().toISOString();
     }
