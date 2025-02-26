@@ -21,6 +21,10 @@ const props = defineProps({
     type: Array,
     required: true,
   },
+  type: {
+    type: String,
+    required: true,
+  },
 });
 
 // Référence au canvas
@@ -42,7 +46,7 @@ onMounted(() => {
 function renderChart() {
   const ctx = myChart.value.getContext('2d');
   new Chart(ctx, {
-    type: 'line', // Change le type de graphique à "line" pour une courbe
+    type: props.type, // Utiliser le type de graphique passé en prop
     data: {
       labels: props.dates, // Utilisation des dates en tant que labels
       datasets: [{
@@ -59,9 +63,10 @@ function renderChart() {
     },
     options: {
       responsive: true,
-      scales: {
+      scales: props.type === 'pie' ? {} : {
         y: {
-          beginAtZero: true,
+          suggestedMin: Math.min(...props.valeur) - 1,
+          suggestedMax: Math.max(...props.valeur) + 1,
         },
       },
     },

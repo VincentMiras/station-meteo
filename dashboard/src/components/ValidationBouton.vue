@@ -2,20 +2,46 @@
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useWeatherStore } from '@/stores/WeatherStore';
+import { useDataStore } from '@/stores/DataStore';
+
 
 const router = useRouter();
 const weatherStore = useWeatherStore();
+const dataStore = useDataStore();
+let lien =weatherStore.mode;
 
-const handleValidation = () => {
+const handleValidation = async () => {
     console.log('Mesures sélectionnées :', weatherStore.queryParams);
     console.log('URL auto ?:', weatherStore.url_fetch);
-    router.push('/dashboard');
+
+    try {
+        dataStore.data = await fetchData(weatherStore.url_fetch);
+        console.log('Données récupérées:', dataStore.data);
+        router.push('/dashboard'+lien);
+
+    } catch (error) {
+        console.error('Une erreur s\'est produite, impossible de récupérer les données', error);
+    }
 };
+
 
 const isDisabled = computed(() =>
     weatherStore.mode === 'sample' && !weatherStore.startDate || weatherStore.selectedMeasures.length === 0 || weatherStore.station.length === 0
 );
 
+const fetchData = async (url) => {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error('Erreur de récupération des données');
+        }
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Erreur lors de la récupération des données:', error);
+        throw error;
+    }
+};
 </script>
 
 <template>
