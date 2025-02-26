@@ -23,7 +23,7 @@ const capteurMapping = {
     temperature: 'temperature',
     pressure: 'pressure',
     humidity: 'humidity',
-    lux: 'luminosity',
+    luminosity: 'luminosity',
     wind_heading: 'wind_heading',
     wind_speed_avg: 'wind_speed_avg',
     rain: 'rain',
@@ -36,7 +36,7 @@ const unitMapping = {
     pressure: 'hP',
     humidity: '%',
     rain: 'mm/m2',
-    lux: 'Lux',
+    luminosity: 'Lux',
     wind_heading: '°',
     wind_speed_avg: 'km/h',
     lat: 'DD',
@@ -48,7 +48,7 @@ const decimalPlaces = {
     pressure: 2,
     humidity: 2,
     rain: 2,
-    lux: 2,
+    luminosity: 2,
     wind_heading: 0,
     wind_speed_avg: 0,
     lat: 2,
@@ -96,7 +96,6 @@ router.get('/:list_capteur?', function (req, res, next) {
             } else {
                 data[capteur] = await fetchData(capteur);
             }
-            data[capteur] = await fetchData(capteur);
         }
         const filteredUnitMapping = {};
         for (let capteur of listCapteur) {
