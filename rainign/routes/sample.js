@@ -39,7 +39,7 @@ const capteurMapping = {
 
 const unitMapping = {
     temperature: 'C',
-    pressure: 'hP',
+    pressure: 'Pa',
     humidity: '%',
     rain: 'mm/m2',
     lux: 'Lux',
@@ -47,6 +47,18 @@ const unitMapping = {
     wind_speed_avg: 'km/h',
     lat: 'DD',
     lon: 'DD'
+};
+
+const decimalPlaces = {
+    temperature: 2,
+    pressure: 2,
+    humidity: 2,
+    rain: 2,
+    lux: 2,
+    wind_heading: 0,
+    wind_speed_avg: 0,
+    lat: 2,
+    lon: 3
 };
 
 router.get('/:start/:end?/:list_capteur?', async function (req, res, next) {
@@ -57,6 +69,7 @@ router.get('/:start/:end?/:list_capteur?', async function (req, res, next) {
     if (!startDate || !isValidUTC(startDate) || !isValidUTC(endDate)) {
         return sendError(res);
     }
+
     const start = new Date(startDate);
     const end = new Date(endDate);
     const duration = (end - start) / (1000 * 60 * 60);
@@ -72,7 +85,7 @@ router.get('/:start/:end?/:list_capteur?', async function (req, res, next) {
         aggregationPeriod = '1h';
     } else if (duration <= 168) {
         aggregationPeriod = '6h';
-    };
+    }
 
     let listCapteur = valid_Capteur;
     if (capteurs) {
@@ -106,7 +119,7 @@ router.get('/:start/:end?/:list_capteur?', async function (req, res, next) {
                 if (!acc[row._time]) {
                     acc[row._time] = {};
                 }
-                acc[row._time][capteur] = row._value;
+                acc[row._time][capteur] = parseFloat(row._value.toFixed(decimalPlaces[capteur]));
                 return acc;
             }, {});
         } catch (error) {
