@@ -51,13 +51,13 @@ const getUnitForKey = (key) => {
 
 <style scoped>
 .graphs-container {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
     gap: 20px;
+    width: 100%;
 }
 
 .graph-item {
-    flex: 1 1 calc(33.333% - 20px);
     box-sizing: border-box;
 }
 </style>
