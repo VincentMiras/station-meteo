@@ -18,6 +18,16 @@ if (isProxy(weatherData)){
 
 console.log(json)
 
+const labels = {
+    temperature: 'Température',
+    pressure: 'Pression',
+    humidity: 'Humidité',
+    rain: 'Pluie',
+    luminosity: 'Luminosité',
+    wind_heading: 'Direction du vent',
+    wind_speed_avg: 'Vitesse moyenne du vent',
+};
+
 const getUnitForKey = (key) => {
     const units = {
         temperature: '°C',
@@ -33,13 +43,38 @@ const getUnitForKey = (key) => {
 </script>
 
 <template>
-    <div v-for="(measure, index) in mesures" :key="index">
-            <template v-if="measure === 'position' && weatherData?.position">
-            <Carte :coords="json.data.position" />
-        </template>
-        <template v-else>
-            <Mesure :titre="measure" :valeur="json.data[measure]" :unite="getUnitForKey(measure)" />
-        </template>
-    </div>
+    <div class="container">
+        <div v-for="(measure, index) in mesures" :key="index">
+            <template v-if="measure !== 'position'">
+                <div class="measure-item">
+                    <Mesure :titre="labels[measure]" :valeur="json.data[measure]" :unite="getUnitForKey(measure)" />
+                </div>
+            </template>
+        </div>
 
+        <div v-if="mesures.includes('position')" class="map-item">
+            <Carte :coords="[[json.data.lon, json.data.lat]]" />
+        </div>
+    </div>
 </template>
+
+
+<style scoped>
+.container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2vh;
+}
+
+.measure-item {
+  box-sizing: border-box;
+}
+
+.map-item {
+  grid-column: 1 / -1; 
+  margin-top: 1vh;
+}
+</style>
+
+
+
