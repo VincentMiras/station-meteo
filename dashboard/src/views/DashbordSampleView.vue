@@ -1,8 +1,7 @@
 <script setup>
 import { useWeatherStore } from '@/stores/WeatherStore';
 import { useDataStore } from '@/stores/DataStore';
-import Mesure from '@/components/mesure/MesureUnique.vue';
-import Carte from '@/components/mesure/Carte.vue';
+import { Graphe } from '@/components/mesure/Graphe.vue';
 import { isProxy, toRaw } from 'vue';
 
 const weatherStore = useWeatherStore();
@@ -12,9 +11,10 @@ const mesures = weatherStore.selectedMeasures;
 const weatherData = dataStore.data;
 const loading = dataStore.loading;
 const error = dataStore.error;
+const graphType = 'line';
 
 let json = weatherData;
-if (isProxy(weatherData)){
+if (isProxy(weatherData)) {
     json = toRaw(weatherData)
 }
 
@@ -35,13 +35,13 @@ const getUnitForKey = (key) => {
 </script>
 
 <template>
-    <div v-for="(measure, index) in mesures" :key="index">
-            <template v-if="measure === 'position' && weatherData?.position">
-            <Carte :coords="json.data.position" />
-        </template>
-        <template v-else>
-            <Mesure :titre="measure" :valeur="json.data[measure]" :unite="getUnitForKey(measure)" />
-        </template>
+    <div>
+        <div>
+            <div v-for="mesure in mesures" :key="mesure">
+                <h2>{{ mesure }}</h2>
+                <Graphe :titre="mesure" :valeur="json.map(item => item[mesure])" :dates="json.map(item => item.date)"
+                    :type="graphType" />
+            </div>
+        </div>
     </div>
-
 </template>

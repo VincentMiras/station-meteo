@@ -14,7 +14,7 @@ export const useWeatherStore = defineStore('weather', () => {
         const date = new Date(dateStr);
         if (isNaN(date.getTime())) return '';
 
-        return date.toISOString().replace(/[-:]/g, '').slice(0, 13) + 'Z'; // Format compact sans secondes
+        return date.toISOString(); // Format with seconds
     };
 
     // Génération des paramètres de requête
@@ -46,7 +46,6 @@ export const useWeatherStore = defineStore('weather', () => {
                 : `http://${stationId}.ensg.eu:3000/sample/${queryParams.value.sdate}/${queryParams.value.edate}/${queryMesures.value.join('-')}`
         );
     });
-
 
     return { mode, selectedMeasures, station, startDate, endDate, queryParams, url_fetch, queryMesures };
 });
