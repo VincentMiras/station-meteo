@@ -4,7 +4,7 @@
 
 # Station Météo 🌦️
 <p align="center">
-    <img src="images/station.png" alt="illustration" width="200"/>
+    <img src="images/station.png" alt="illustration" width="600"/>
 </p>
 
 ![Commit Status](https://img.shields.io/github/commit-activity/t/VincentMiras/station-meteo?)
