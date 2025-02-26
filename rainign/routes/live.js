@@ -20,7 +20,7 @@ const bucket = process.env.DOCKER_INFLUXDB_INIT_BUCKET || 'meteo';
 const client = new InfluxDB({ url, token });
 const queryApi = client.getQueryApi(org);
 
-const valid_Capteur = ['temperature', 'pressure', 'humidity', 'lux', 'wind_heading', 'wind_speed_avg', 'rain', 'lat', 'long'];
+const valid_Capteur = ['temperature', 'pressure', 'humidity', 'lux', 'wind_heading', 'wind_speed_avg', 'rain', 'lat', 'lon'];
 
 
 const capteurMapping = {
@@ -32,7 +32,7 @@ const capteurMapping = {
     wind_speed_avg: 'wind_speed_avg',
     rain: 'rain',
     lat: 'gps',
-    long: 'gps'
+    lon: 'gps'
 };
 
 const unitMapping = {
@@ -44,7 +44,7 @@ const unitMapping = {
     wind_heading: '°',
     wind_speed_avg: 'km/h',
     lat: 'DD',
-    long: 'DD'
+    lon: 'DD'
 };
 
 
@@ -67,7 +67,7 @@ router.get('/:list_capteur?', function (req, res, next) {
     async function fetchData(capteur) {
         const measurement = capteurMapping[capteur];
         let query;
-        if (capteur === 'lat' || capteur === 'long') {
+        if (capteur === 'lat' || capteur === 'lon') {
             const field = capteur === 'lat' ? 'latitude' : 'longitude';
             query = `from(bucket: "${bucket}") |> range(start: -1h) |> filter(fn: (r) => r._measurement == "${measurement}" and r._field == "${field}") |> last()`;
         } else {

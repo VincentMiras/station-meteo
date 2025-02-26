@@ -23,7 +23,7 @@ const bucket = process.env.DOCKER_INFLUXDB_INIT_BUCKET || 'meteo';
 const client = new InfluxDB({ url, token });
 const queryApi = client.getQueryApi(org);
 
-const valid_Capteur = ['temperature', 'pressure', 'humidity', 'lux', 'wind_heading', 'wind_speed_avg', 'rain', 'lat', 'long'];
+const valid_Capteur = ['temperature', 'pressure', 'humidity', 'lux', 'wind_heading', 'wind_speed_avg', 'rain', 'lat', 'lon'];
 
 const capteurMapping = {
     temperature: 'temperature',
@@ -34,7 +34,7 @@ const capteurMapping = {
     wind_speed_avg: 'wind_speed_avg',
     rain: 'rain',
     lat: 'gps',
-    long: 'gps'
+    lon: 'gps'
 };
 
 const unitMapping = {
@@ -46,7 +46,7 @@ const unitMapping = {
     wind_heading: '°',
     wind_speed_avg: 'km/h',
     lat: 'DD',
-    long: 'DD'
+    lon: 'DD'
 };
 
 router.get('/:start/:end?/:list_capteur?', async function (req, res, next) {
@@ -87,10 +87,19 @@ router.get('/:start/:end?/:list_capteur?', async function (req, res, next) {
 
     async function fetchData(capteur) {
         const measurement = capteurMapping[capteur];
-        const query = `from(bucket: "${bucket}") 
-        |> range(start: ${startDate}, stop: ${endDate}) 
-        |> filter(fn: (r) => r._measurement == "${measurement}" and r._field == "value")
-        |> aggregateWindow(every: ${aggregationPeriod}, fn: mean, createEmpty: false)`;
+        let query;
+        if (capteur === 'lat' || capteur === 'lon') {
+            const field = capteur === 'lat' ? 'latitude' : 'longitude';
+            query = `from(bucket: "${bucket}") 
+            |> range(start: ${startDate}, stop: ${endDate}) 
+            |> filter(fn: (r) => r._measurement == "${measurement}" and r._field == "${field}")
+            |> aggregateWindow(every: ${aggregationPeriod}, fn: mean, createEmpty: false)`;
+        } else {
+            query = `from(bucket: "${bucket}") 
+            |> range(start: ${startDate}, stop: ${endDate}) 
+            |> filter(fn: (r) => r._measurement == "${measurement}" and r._field == "value")
+            |> aggregateWindow(every: ${aggregationPeriod}, fn: mean, createEmpty: false)`;
+        }
         try {
             const data = await queryApi.collectRows(query);
             return data.reduce((acc, row) => {
