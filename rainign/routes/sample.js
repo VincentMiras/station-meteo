@@ -23,7 +23,7 @@ const bucket = process.env.DOCKER_INFLUXDB_INIT_BUCKET || 'meteo';
 const client = new InfluxDB({ url, token });
 const queryApi = client.getQueryApi(org);
 
-const valid_Capteur = ['temperature', 'pressure', 'humidity', 'lux', 'wind_heading', 'wind_speed_avg', 'rain', 'lat', 'lon'];
+const valid_Capteur = ['temperature', 'pressure', 'humidity', 'luminosity', 'wind_heading', 'wind_speed_avg', 'rain', 'lat', 'lon'];
 
 const capteurMapping = {
     temperature: 'temperature',
@@ -110,7 +110,14 @@ router.get('/:start/:end?/:list_capteur?', async function (req, res, next) {
             |> range(start: ${startDate}, stop: ${endDate}) 
             |> filter(fn: (r) => r._measurement == "${measurement}" and r._field == "${field}")
             |> aggregateWindow(every: ${aggregationPeriod}, fn: mean, createEmpty: false)`;
-        } else {
+        } else if (capteur === 'rain') {
+            query = `from(bucket: "${bucket}") 
+            |> range(start: ${startDate}, stop: ${endDate}) 
+            |> filter(fn: (r) => r._measurement == "${measurement}" and r._field == "value")
+            |> aggregateWindow(every: ${aggregationPeriod}, fn: sum, createEmpty: false)
+            |> map(fn: (r) => ({ _time: r._time, _value: float(v: r._value) * 0.328, _field: r._field, _measurement: r._measurement }))`;
+        }
+        else {
             query = `from(bucket: "${bucket}") 
             |> range(start: ${startDate}, stop: ${endDate}) 
             |> filter(fn: (r) => r._measurement == "${measurement}" and r._field == "value")

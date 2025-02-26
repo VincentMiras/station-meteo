@@ -17,7 +17,7 @@ const bucket = process.env.DOCKER_INFLUXDB_INIT_BUCKET || 'meteo';
 const client = new InfluxDB({ url, token });
 const queryApi = client.getQueryApi(org);
 
-const valid_Capteur = ['temperature', 'pressure', 'humidity', 'lux', 'wind_heading', 'wind_speed_avg', 'rain', 'lat', 'lon'];
+const valid_Capteur = ['temperature', 'pressure', 'humidity', 'luminosity', 'wind_heading', 'wind_speed_avg', 'rain', 'lat', 'lon'];
 
 const capteurMapping = {
     temperature: 'temperature',
@@ -91,6 +91,11 @@ router.get('/:list_capteur?', function (req, res, next) {
     (async () => {
         const data = {};
         for (let capteur of listCapteur) {
+            if (capteur === 'rain') {
+                data[capteur] = await fetchData(capteur) * 0.328;
+            } else {
+                data[capteur] = await fetchData(capteur);
+            }
             data[capteur] = await fetchData(capteur);
         }
         const filteredUnitMapping = {};
