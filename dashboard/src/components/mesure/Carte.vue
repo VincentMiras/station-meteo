@@ -11,6 +11,10 @@ const props = defineProps({
     type: Array,
     required: true,
   },
+  station: {
+    type: Array,
+    default:'unknown',
+  }
 })
 
 import { onMounted, ref } from 'vue';
@@ -32,8 +36,11 @@ onMounted(() => {
 
   const markers = L.markerClusterGroup();
 
+  let i = 0;
+
   props.coords.forEach(points => {
-    let marker = L.marker(points).bindPopup('<strong>Station</strong>');
+    let marker = L.marker(points).bindPopup('<strong>Station </strong>'+props.station[i]);
+    i+=1;
     markers.addLayer(marker);
   });
 
