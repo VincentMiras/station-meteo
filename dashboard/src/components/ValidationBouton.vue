@@ -15,9 +15,16 @@ const handleValidation = async () => {
     console.log('URL auto ?:', weatherStore.url_fetch);
 
     try {
-        dataStore.data = await fetchData(weatherStore.url_fetch);
-        console.log('Données récupérées:', dataStore.data);
-        router.push('/dashboard'+lien);
+        if (weatherStore.url_fetch.length > 1) {
+            const promesses = weatherStore.url_fetch.map(url => fetchData(url));
+            dataStore.data = await Promise.all(promesses);
+            console.log('Données récupérées:', dataStore.data);
+        } else {
+            dataStore.data = await fetchData(weatherStore.url_fetch);
+            console.log('Données récupérées:', dataStore.data);
+        }
+        
+        router.push('/dashboard' + lien);
 
     } catch (error) {
         console.error('Une erreur s\'est produite, impossible de récupérer les données', error);
