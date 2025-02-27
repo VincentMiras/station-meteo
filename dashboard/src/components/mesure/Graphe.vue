@@ -37,7 +37,7 @@ onMounted(() => {
   } else {
     const script = document.createElement('script');
     script.src = "https://cdn.jsdelivr.net/npm/chart.js";
-    script.onload = renderChart; // Exécuter la fonction une fois le script chargé
+    script.onload = renderChart;
     document.head.appendChild(script);
   }
 });
@@ -45,25 +45,34 @@ onMounted(() => {
 // Fonction pour créer le graphique
 function renderChart() {
   const ctx = myChart.value.getContext('2d');
+  if (props.type === 'radar') {
+    renderRadarChart(ctx);
+  } else {
+    renderLineChart(ctx);
+  }
+}
+
+// Fonction pour créer un graphique en ligne
+function renderLineChart(ctx) {
   new Chart(ctx, {
-    type: props.type, // Utiliser le type de graphique passé en prop
+    type: 'line',
     data: {
-      labels: props.dates, // Utilisation des dates en tant que labels
+      labels: props.dates,
       datasets: [{
-        label: props.titre, // Utilisation du titre en tant que label du dataset
-        data: props.valeur, // Utilisation des valeurs passées dans les props
-        fill: false, // Ne pas remplir la courbe sous la ligne
-        borderColor: 'rgba(75, 192, 192, 1)', // Couleur de la ligne
-        tension: 0.4, // Arrondir les courbes (facultatif, à ajuster selon le besoin)
-        borderWidth: 2, // Largeur de la ligne
-        pointBackgroundColor: 'rgba(75, 192, 192, 1)', // Couleur des points
-        pointRadius: 5, // Taille des points
-        pointHoverRadius: 7, // Taille des points au survol
+        label: props.titre,
+        data: props.valeur,
+        fill: false,
+        borderColor: 'rgba(75, 192, 192, 1)',
+        tension: 0.4,
+        borderWidth: 2,
+        pointBackgroundColor: 'rgba(75, 192, 192, 1)',
+        pointRadius: 5,
+        pointHoverRadius: 7,
       }]
     },
     options: {
       responsive: true,
-      scales: props.type === 'pie' ? {} : {
+      scales: {
         y: {
           suggestedMin: Math.min(...props.valeur) - 1,
           suggestedMax: Math.max(...props.valeur) + 1,
@@ -72,8 +81,58 @@ function renderChart() {
     },
   });
 }
-</script>
 
+// Fonction pour créer un graphique radar
+function renderRadarChart(ctx) {
+  if (props.valeur.every(val => Array.isArray(val) && val.length === 2)) {
+    const latitudes = props.valeur.map(val => val[0]);
+    const longitudes = props.valeur.map(val => val[1]);
+
+    new Chart(ctx, {
+      type: 'radar',
+      data: {
+        labels: props.dates,
+        datasets: [
+          {
+            label: `Latitude`,
+            data: latitudes, 
+            fill: true,
+            borderColor: 'rgba(75, 192, 192, 1)', 
+            backgroundColor: 'rgba(75, 192, 192, 0.2)', 
+            pointBackgroundColor: 'rgba(75, 192, 192, 1)', 
+            pointRadius: 5, 
+            pointHoverRadius: 7,
+          },
+            {
+            label: `Longitude`,
+            data: longitudes,
+            fill: true,
+            borderColor: 'rgba(192, 75, 75, 1)',
+            backgroundColor: 'rgba(0, 0, 0, 0.0)', 
+            pointBackgroundColor: 'rgba(192, 75, 75, 1)',
+            pointRadius: 5, 
+            pointHoverRadius: 7,
+            }
+        ]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          r: {
+            angleLines: {
+              display: true
+            },
+            suggestedMin: Math.min(...latitudes.concat(longitudes)) - 1,
+            suggestedMax: Math.max(...latitudes.concat(longitudes)) + 1,
+          }
+        }
+      },
+    });
+  } else {
+    console.error('Les données pour le graphique radar ne sont pas au bon format.');
+  }
+}
+</script>
 <style scoped>
 /* Styles spécifiques à votre composant */
 </style>
