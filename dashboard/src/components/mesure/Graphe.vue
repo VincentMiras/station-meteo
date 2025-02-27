@@ -45,25 +45,34 @@ onMounted(() => {
 // Fonction pour créer le graphique
 function renderChart() {
   const ctx = myChart.value.getContext('2d');
+  if (props.type === 'radar') {
+    renderRadarChart(ctx);
+  } else {
+    renderLineChart(ctx);
+  }
+}
+
+// Fonction pour créer un graphique en ligne
+function renderLineChart(ctx) {
   new Chart(ctx, {
-    type: props.type, // Utiliser le type de graphique passé en prop
+    type: 'line',
     data: {
-      labels: props.dates, // Utilisation des dates en tant que labels
+      labels: props.dates,
       datasets: [{
-        label: props.titre, // Utilisation du titre en tant que label du dataset
-        data: props.valeur, // Utilisation des valeurs passées dans les props
-        fill: false, // Ne pas remplir la courbe sous la ligne
-        borderColor: 'rgba(75, 192, 192, 1)', // Couleur de la ligne
-        tension: 0.4, // Arrondir les courbes (facultatif, à ajuster selon le besoin)
-        borderWidth: 2, // Largeur de la ligne
-        pointBackgroundColor: 'rgba(75, 192, 192, 1)', // Couleur des points
-        pointRadius: 5, // Taille des points
-        pointHoverRadius: 7, // Taille des points au survol
+        label: props.titre,
+        data: props.valeur,
+        fill: false,
+        borderColor: 'rgba(75, 192, 192, 1)',
+        tension: 0.4,
+        borderWidth: 2,
+        pointBackgroundColor: 'rgba(75, 192, 192, 1)',
+        pointRadius: 5,
+        pointHoverRadius: 7,
       }]
     },
     options: {
       responsive: true,
-      scales: props.type === 'pie' ? {} : {
+      scales: {
         y: {
           suggestedMin: Math.min(...props.valeur) - 1,
           suggestedMax: Math.max(...props.valeur) + 1,
@@ -71,6 +80,37 @@ function renderChart() {
       },
     },
   });
+}
+
+// Fonction pour créer un graphique radar
+function renderRadarChart(ctx) {
+  // Vérifier que les données sont au bon format pour un graphique radar
+  if (props.valeur.every(val => Array.isArray(val) && val.length === 2)) {
+    const latitudes = props.valeur.map(val => val[0]);
+    const longitudes = props.valeur.map(val => val[1]);
+
+    new Chart(ctx, {
+      type: 'radar',
+      data: {
+        labels: ['Latitude', 'Longitude'], // Utilisation des labels pour les coordonnées
+        datasets: [{
+          label: props.titre,
+          data: [Math.max(...latitudes), Math.max(...longitudes)], // Utilisation des valeurs maximales pour le radar
+          fill: true, // Remplir la zone sous le radar
+          borderColor: 'rgba(75, 192, 192, 1)', // Couleur de la ligne
+          backgroundColor: 'rgba(75, 192, 192, 0.2)', // Couleur de remplissage
+          pointBackgroundColor: 'rgba(75, 192, 192, 1)', // Couleur des points
+          pointRadius: 5, // Taille des points
+          pointHoverRadius: 7, // Taille des points au survol
+        }]
+      },
+      options: {
+        responsive: true,
+      },
+    });
+  } else {
+    console.error('Les données pour le graphique radar ne sont pas au bon format.');
+  }
 }
 </script>
 
