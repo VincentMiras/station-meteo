@@ -59,7 +59,10 @@ function renderLineChart(ctx) {
   new Chart(ctx, {
     type: 'line',
     data: {
-      labels: props.dates,
+      labels: props.dates.map(date => {
+        const d = new Date(date);
+        return `${d.toLocaleString('default', { month: 'short' })} ${d.getDate()} : ${d.getHours()}h`;
+      }),
       datasets: [{
         label: props.titre,
         data: props.valeur,
@@ -94,7 +97,13 @@ function renderRadarChart(ctx) {
     new Chart(ctx, {
       type: 'radar',
       data: {
-        labels: props.dates,
+        labels: props.dates.map((date, index) => {
+          if (index % Math.ceil(props.dates.length / 10) === 0) {
+        const d = new Date(date);
+        return `${d.toLocaleString('default', { month: 'short' })} ${d.getDate()} : ${d.getHours()}h`;
+          }
+          return '';
+        }),
         datasets: [
           {
             label: `Latitude`,
@@ -135,21 +144,16 @@ function renderRadarChart(ctx) {
     console.error('Les données pour le graphique radar ne sont pas au bon format.');
   }
 }
-
-function renderWindChart(ctx){
-  const pointRadius = Math.max(1, 5 - Math.floor(props.valeur.length / 50)); 
+function renderWindChart(ctx) {
+  const pointRadius = Math.max(1, 5 - Math.floor(props.valeur.length / 50));
   new Chart(ctx, {
-    type: 'radar',
+    type: 'polarArea',
     data: {
-      labels: props.dates,
+      labels: ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'],
       datasets: [{
-        label: "wind_heading",
-        data: props.valeur,
-        fill: true,
+        data: props.valeur.map(val => val),
+        backgroundColor: 'rgba(75, 192, 192, 0.2)',
         borderColor: 'rgba(75, 192, 192, 1)',
-        tension: 0.4,
-        borderWidth: 2,
-        backgroundColor: 'rgba(75, 192, 192, 0.2)', 
         pointBackgroundColor: 'rgba(75, 192, 192, 1)',
         pointRadius: pointRadius,
         pointHoverRadius: pointRadius + 2,
@@ -158,16 +162,25 @@ function renderWindChart(ctx){
     options: {
       responsive: true,
       scales: {
-        y: {
-          suggestedMin: Math.min(...props.valeur) - 1,
+        r: {
+          angleLines: {
+            display: true
+          },
+          suggestedMin: 0,
           suggestedMax: Math.max(...props.valeur) + 1,
-        },
-      },
+          ticks: {
+            stepSize: 1,
+            callback: function(value) {
+              const directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
+              return directions[value % 16];
+            }
+          }
+        }
+      }
     },
   });
 }
 </script>
-
 <style scoped>
 /* Styles spécifiques à votre composant */
 </style>
