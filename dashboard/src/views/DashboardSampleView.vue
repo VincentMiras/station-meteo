@@ -11,7 +11,6 @@ const mesures = weatherStore.selectedMeasures;
 const weatherData = dataStore.data;
 const loading = dataStore.loading;
 const error = dataStore.error;
-const graphType = 'line';
 
 let json = weatherData;
 if (isProxy(weatherData)) {
@@ -22,6 +21,8 @@ const parsedData = Object.keys(json.data)
     .filter(key => key !== 'id' && key !== 'unit')
     .map(key => ({
         date: key,
+        lat: json.data[key].lat,
+        lon: json.data[key].lon,
         ...json.data[key]
     }));
 
@@ -42,14 +43,16 @@ const getUnitForKey = (key) => {
 <template>
     <div class="graphs-container">
         <div v-for="mesure in mesures" :key="mesure" class="graph-item">
-            <h2>{{ mesure }}</h2>
+            <template v-if="mesure !== 'position'">
+                <h2>{{ mesure }}</h2>
             <Graphe :titre="mesure" :valeur="parsedData.map(item => item[mesure])"
-                :dates="parsedData.map(item => item.date)" :type="graphType" />
+            :dates="parsedData.map(item => item.date)" type="line" />
+            </template>
         </div>
-        <div v-for="mesure in mesures" :key="mesure" class="graph-item">
+        <div v-if="mesures.includes('position')" class="graph-item">
             <h2>Latitude et Longitude</h2>
-            <Graphe :titre="'Latitude et Longitude'" :valeur="parsedData.map(item => [item.latitude, item.longitude])"
-                :dates="parsedData.map(item => item.date)" type="pie" />
+            <Graphe :titre="'Latitude et Longitude'" :valeur="parsedData.map(item => [item.lat, item.lon])"
+            :dates="parsedData.map(item => item.date)" type="radar" />
         </div>
     </div>
 </template>

@@ -53,7 +53,7 @@ const getUnitForKey = (key) => {
         </div>
 
         <div v-if="mesures.includes('position')" class="map-item">
-            <Carte :coords="[[json.data.lon, json.data.lat]]" />
+            <Carte :coords="[[json.data.lat, json.data.lon]]" />
         </div>
     </div>
 </template>
