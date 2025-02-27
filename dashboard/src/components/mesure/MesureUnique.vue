@@ -4,11 +4,15 @@ import { computed } from 'vue';
 const props = defineProps({
     titre: {
         type: String,
-        required: true,
+        default: 'Unknown'
+    },
+    station: {
+        type: [Number, String],
+        default: 'Unknown'
     },
     valeur: {
         type: [Number, String],
-        required: true,
+        default: 'N/A',
     },
     unite: {
         type: String,
@@ -65,6 +69,7 @@ const textGradient = computed(() => {
 <template>
     <div class="measure-container">
         <h3>{{ titre }}</h3>
+        <div class="station-name">{{ station }}</div>
         <div class="value" :style="textGradient">
             <p>{{ valeur }} {{ unite }}</p>
         </div>
@@ -81,6 +86,7 @@ const textGradient = computed(() => {
     max-width: 60vh;
     margin: 3vh auto;
     font-weight: bold;
+    position: relative; /* Important for positioning the station name */
     transition: all 0.3s ease;
 }
 
@@ -99,5 +105,13 @@ h3 {
     font-weight: bold;
     color: #444;
 }
-</style>
 
+.station-name {
+    position: absolute; /* Absolute positioning */
+    top: 10px;
+    right: 10px;
+    font-size: 2vh;
+    color: #333;
+    font-weight: normal;
+}
+</style>

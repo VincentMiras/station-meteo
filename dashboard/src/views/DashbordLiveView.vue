@@ -27,36 +27,32 @@ const labels = {
     wind_heading: 'Direction du vent',
     wind_speed_avg: 'Vitesse moyenne du vent',
 };
-
-const getUnitForKey = (key) => {
-    const units = {
-        temperature: '°C',
-        pressure: 'hPa',
-        humidity: '%',
-        rain: 'mm',
-        luminosity: 'lux',
-        wind_heading: '°',
-        wind_speed_avg: 'km/h',
-    };
-    return units[key];
-};
 </script>
+
 
 <template>
     <div class="container">
-        <div v-for="(measure, index) in mesures" :key="index">
-            <template v-if="measure !== 'position'">
-                <div class="measure-item">
-                    <Mesure :titre="labels[measure]" :valeur="json.data[measure]" :unite="getUnitForKey(measure)" />
-                </div>
-            </template>
-        </div>
+        <div v-for="(station, stationIndex) in json" :key="stationIndex">
+            <div v-for="(measure, index) in mesures" :key="index">
+                <template v-if="measure !== 'position'">
+                    <div class="measure-item">
+                        <Mesure 
+                            :titre="labels[measure]" 
+                            :station="'station n°'+station.id"
+                            :valeur="station.data[measure]" 
+                            :unite="station.unit[measure]" 
+                        />
+                    </div>
+                </template>
+            </div>
 
-        <div v-if="mesures.includes('position')" class="map-item">
-            <Carte :coords="[[json.data.lat, json.data.lon]]" />
+            <div v-if="mesures.includes('position')" class="map-item">
+                <Carte :coords="[[station.data.lat, station.data.lon]]" />
+            </div>
         </div>
     </div>
 </template>
+
 
 
 <style scoped>
