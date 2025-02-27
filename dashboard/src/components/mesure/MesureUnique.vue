@@ -62,8 +62,6 @@ const textGradient = computed(() => {
         return `background: linear-gradient(90deg, ${colorA}, ${colorB}); -webkit-background-clip: text; -webkit-text-fill-color: transparent;`;
     }
 });
-
-
 </script>
 
 <template>
@@ -75,6 +73,7 @@ const textGradient = computed(() => {
         </div>
     </div>
 </template>
+
 
 <style scoped>
 .measure-container {

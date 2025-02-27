@@ -3,7 +3,7 @@ import { useWeatherStore } from '@/stores/WeatherStore';
 import { useDataStore } from '@/stores/DataStore';
 import Mesure from '@/components/mesure/MesureUnique.vue';
 import Carte from '@/components/mesure/Carte.vue';
-import { isProxy, toRaw } from 'vue';
+import { computed, isProxy, toRaw } from 'vue';
 
 const weatherStore = useWeatherStore();
 const dataStore = useDataStore();
@@ -17,6 +17,24 @@ if (isProxy(weatherData)){
 }
 
 console.log(json)
+
+const stationloc = computed(() => {
+    if (Array.isArray(json)){
+        return json.map(station => [station.data.lat, station.data.lon]);
+    }
+    else {
+        return [[json.data.lat, json.data.lon]]
+    }
+});
+
+const stationname = computed(() => {
+    if (Array.isArray(json)){
+        return json.map(station => station.id);
+    }
+    else {
+        return [json.id];
+    }
+});
 
 const labels = {
     temperature: 'Température',
@@ -45,10 +63,9 @@ const labels = {
                     </div>
                 </template>
             </div>
-
-            <div v-if="mesures.includes('position')" class="map-item">
-                <Carte :coords="[[station.data.lat, station.data.lon]]" />
-            </div>
+        </div>
+        <div v-if="mesures.includes('position')" class="map-item">
+                <Carte :coords="stationloc" :station="stationname" />
         </div>
     </div>
 </template>
