@@ -20,9 +20,13 @@ const props = defineProps({
 import { onMounted, ref } from 'vue';
 import "leaflet/dist/leaflet.css";
 import * as L from 'leaflet';
-import 'leaflet.markercluster/dist/MarkerCluster.css';
-import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
-import "leaflet.markercluster";
+
+const customIcon = new L.Icon({
+  iconUrl: '../../../Raspberry_Pi_logo.png',
+  iconSize: [32, 40.4266666666 ],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32],
+});
 
 const map = ref(null);
 
@@ -34,17 +38,13 @@ onMounted(() => {
     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
   }).addTo(map.value);
 
-  const markers = L.markerClusterGroup();
-
   let i = 0;
 
   props.coords.forEach(points => {
-    let marker = L.marker(points).bindPopup('<strong>Station </strong>'+props.station[i]);
+    L.marker(points, {icon: customIcon}).bindPopup('<strong>Station </strong>'+props.station[i]).addTo(map.value);
     i+=1;
-    markers.addLayer(marker);
-  });
 
-  map.value.addLayer(markers);
+  });
 });
 </script>
 

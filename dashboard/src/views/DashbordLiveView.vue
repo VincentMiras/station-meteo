@@ -32,7 +32,7 @@ const stationname = computed(() => {
         return json.map(station => station.id);
     }
     else {
-        return json.id;
+        return [json.id];
     }
 });
 
