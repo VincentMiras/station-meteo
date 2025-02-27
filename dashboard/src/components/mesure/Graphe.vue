@@ -37,7 +37,7 @@ onMounted(() => {
   } else {
     const script = document.createElement('script');
     script.src = "https://cdn.jsdelivr.net/npm/chart.js";
-    script.onload = renderChart; // Exécuter la fonction une fois le script chargé
+    script.onload = renderChart;
     document.head.appendChild(script);
   }
 });
@@ -84,7 +84,6 @@ function renderLineChart(ctx) {
 
 // Fonction pour créer un graphique radar
 function renderRadarChart(ctx) {
-  // Vérifier que les données sont au bon format pour un graphique radar
   if (props.valeur.every(val => Array.isArray(val) && val.length === 2)) {
     const latitudes = props.valeur.map(val => val[0]);
     const longitudes = props.valeur.map(val => val[1]);
@@ -92,20 +91,41 @@ function renderRadarChart(ctx) {
     new Chart(ctx, {
       type: 'radar',
       data: {
-        labels: ['Latitude', 'Longitude'], // Utilisation des labels pour les coordonnées
-        datasets: [{
-          label: props.titre,
-          data: [Math.max(...latitudes), Math.max(...longitudes)], // Utilisation des valeurs maximales pour le radar
-          fill: true, // Remplir la zone sous le radar
-          borderColor: 'rgba(75, 192, 192, 1)', // Couleur de la ligne
-          backgroundColor: 'rgba(75, 192, 192, 0.2)', // Couleur de remplissage
-          pointBackgroundColor: 'rgba(75, 192, 192, 1)', // Couleur des points
-          pointRadius: 5, // Taille des points
-          pointHoverRadius: 7, // Taille des points au survol
-        }]
+        labels: props.dates,
+        datasets: [
+          {
+            label: `Latitude`,
+            data: latitudes, 
+            fill: true,
+            borderColor: 'rgba(75, 192, 192, 1)', 
+            backgroundColor: 'rgba(75, 192, 192, 0.2)', 
+            pointBackgroundColor: 'rgba(75, 192, 192, 1)', 
+            pointRadius: 5, 
+            pointHoverRadius: 7,
+          },
+          {
+            label: `Longitude`,
+            data: longitudes, 
+            fill: true, 
+            borderColor: 'rgba(192, 75, 75, 1)',
+            backgroundColor: 'rgba(192, 75, 75, 0.2)', 
+            pointBackgroundColor: 'rgba(192, 75, 75, 1)',
+            pointRadius: 5, 
+            pointHoverRadius: 7,
+          }
+        ]
       },
       options: {
         responsive: true,
+        scales: {
+          r: {
+            angleLines: {
+              display: true
+            },
+            suggestedMin: Math.min(...latitudes.concat(longitudes)) - 1,
+            suggestedMax: Math.max(...latitudes.concat(longitudes)) + 1,
+          }
+        }
       },
     });
   } else {
@@ -113,7 +133,6 @@ function renderRadarChart(ctx) {
   }
 }
 </script>
-
 <style scoped>
 /* Styles spécifiques à votre composant */
 </style>
