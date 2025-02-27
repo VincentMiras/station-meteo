@@ -1,3 +1,4 @@
+var fs = require('fs');
 var express = require('express');
 const { InfluxDB } = require('@influxdata/influxdb-client');
 var router = express.Router();
@@ -8,8 +9,51 @@ function sendError(res) {
     });
 }
 
-const url = process.env.INFLUX_DB_URL || 'http://influxdb:8086';
-const valid_Capteur = ['date', 'temperature', 'pressure', 'humidity', 'lux', 'wind_heading', 'wind_speed_avg', 'rain', 'lat', 'long']
+const url = process.env.INFLUXDB_URL || 'http://piensg031.ensg.eu:8086';
+const token = fs.readFileSync(process.env.DOCKER_INFLUXDB_INIT_ADMIN_TOKEN_FILE, 'utf8').trim();
+const org = process.env.DOCKER_INFLUXDB_INIT_ORG || 'docs';
+const bucket = process.env.DOCKER_INFLUXDB_INIT_BUCKET || 'meteo';
+
+const client = new InfluxDB({ url, token });
+const queryApi = client.getQueryApi(org);
+
+const valid_Capteur = ['temperature', 'pressure', 'humidity', 'luminosity', 'wind_heading', 'wind_speed_avg', 'rain', 'lat', 'lon'];
+
+const capteurMapping = {
+    temperature: 'temperature',
+    pressure: 'pressure',
+    humidity: 'humidity',
+    luminosity: 'luminosity',
+    wind_heading: 'wind_heading',
+    wind_speed_avg: 'wind_speed_avg',
+    rain: 'rain',
+    lat: 'gps',
+    lon: 'gps'
+};
+
+const unitMapping = {
+    temperature: 'C',
+    pressure: 'hP',
+    humidity: '%',
+    rain: 'mm/m2',
+    luminosity: 'Lux',
+    wind_heading: '°',
+    wind_speed_avg: 'km/h',
+    lat: 'DD',
+    lon: 'DD'
+};
+
+const decimalPlaces = {
+    temperature: 2,
+    pressure: 2,
+    humidity: 2,
+    rain: 2,
+    luminosity: 2,
+    wind_heading: 0,
+    wind_speed_avg: 0,
+    lat: 2,
+    lon: 3
+};
 
 router.get('/:list_capteur?', function (req, res, next) {
     let capteurs = req.params.list_capteur;
@@ -25,18 +69,19 @@ router.get('/:list_capteur?', function (req, res, next) {
             return sendError(res);
         }
     }
-    const token = process.env.INFLUX_DB_TOKEN;
-    const org = process.env.INFLUX_DB_ORG;
-    const bucket = process.env.INFLUX_DB_BUCKET;
-
-    const client = new InfluxDB({ url, token });
-    const queryApi = client.getQueryApi(org);
 
     async function fetchData(capteur) {
-        const query = `from(bucket: "${bucket}") |> range(start: -1h) |> filter(fn: (r) => r._measurement == "${capteur}" and r._field == "value") |> last()`;
+        const measurement = capteurMapping[capteur];
+        let query;
+        if (capteur === 'lat' || capteur === 'lon') {
+            const field = capteur === 'lat' ? 'latitude' : 'longitude';
+            query = `from(bucket: "${bucket}") |> range(start: -1h) |> filter(fn: (r) => r._measurement == "${measurement}" and r._field == "${field}") |> last()`;
+        } else {
+            query = `from(bucket: "${bucket}") |> range(start: -1h) |> filter(fn: (r) => r._measurement == "${measurement}" and r._field == "value") |> last()`;
+        }
         try {
             const data = await queryApi.collectRows(query);
-            return data.length > 0 ? data[0]._value : null;
+            return data.length > 0 ? parseFloat(data[0]._value.toFixed(decimalPlaces[capteur])) : null;
         } catch (error) {
             console.error(`Error fetching data for ${capteur}:`, error);
             return null;
@@ -46,9 +91,26 @@ router.get('/:list_capteur?', function (req, res, next) {
     (async () => {
         const data = {};
         for (let capteur of listCapteur) {
-            data[capteur] = await fetchData(capteur);
+            if (capteur === 'rain') {
+                data[capteur] = await fetchData(capteur) * 0.328;
+            } else {
+                data[capteur] = await fetchData(capteur);
+            }
         }
-        return res.status(200).json(data);
+        const filteredUnitMapping = {};
+        for (let capteur of listCapteur) {
+            filteredUnitMapping[capteur] = unitMapping[capteur];
+        }
+
+        const response = {
+            id: 31,
+            unit: filteredUnitMapping,
+            data: {
+                date: new Date().toISOString(),
+                ...data
+            }
+        };
+        return res.status(200).json(response);
     })();
 });
 
