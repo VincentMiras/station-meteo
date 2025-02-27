@@ -103,16 +103,16 @@ function renderRadarChart(ctx) {
             pointRadius: 5, 
             pointHoverRadius: 7,
           },
-          {
+            {
             label: `Longitude`,
-            data: longitudes, 
-            fill: true, 
+            data: longitudes,
+            fill: true,
             borderColor: 'rgba(192, 75, 75, 1)',
-            backgroundColor: 'rgba(192, 75, 75, 0.2)', 
+            backgroundColor: 'rgba(0, 0, 0, 0.0)', 
             pointBackgroundColor: 'rgba(192, 75, 75, 1)',
             pointRadius: 5, 
             pointHoverRadius: 7,
-          }
+            }
         ]
       },
       options: {

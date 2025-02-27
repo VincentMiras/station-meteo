@@ -21,6 +21,8 @@ const parsedData = Object.keys(json.data)
     .filter(key => key !== 'id' && key !== 'unit')
     .map(key => ({
         date: key,
+        lat: json.data[key].lat,
+        lon: json.data[key].lon,
         ...json.data[key]
     }));
 
@@ -49,7 +51,7 @@ const getUnitForKey = (key) => {
         </div>
         <div v-if="mesures.includes('position')" class="graph-item">
             <h2>Latitude et Longitude</h2>
-            <Graphe :titre="'Latitude et Longitude'" :valeur="parsedData.map(item => [item.latitude, item.longitude])"
+            <Graphe :titre="'Latitude et Longitude'" :valeur="parsedData.map(item => [item.lat, item.lon])"
             :dates="parsedData.map(item => item.date)" type="radar" />
         </div>
     </div>
