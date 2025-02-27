@@ -5,7 +5,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, render } from 'vue';
 
 // Définir les props
 const props = defineProps({
@@ -42,18 +42,20 @@ onMounted(() => {
   }
 });
 
-// Fonction pour créer le graphique
 function renderChart() {
   const ctx = myChart.value.getContext('2d');
   if (props.type === 'radar') {
     renderRadarChart(ctx);
-  } else {
+  } else if (props.type === 'wind'){
+    renderWindChart(ctx);
+  }else {
     renderLineChart(ctx);
   }
 }
 
 // Fonction pour créer un graphique en ligne
 function renderLineChart(ctx) {
+  const pointRadius = Math.max(1, 5 - Math.floor(props.valeur.length / 50));
   new Chart(ctx, {
     type: 'line',
     data: {
@@ -66,8 +68,8 @@ function renderLineChart(ctx) {
         tension: 0.4,
         borderWidth: 2,
         pointBackgroundColor: 'rgba(75, 192, 192, 1)',
-        pointRadius: 5,
-        pointHoverRadius: 7,
+        pointRadius: pointRadius,
+        pointHoverRadius: pointRadius + 2,
       }]
     },
     options: {
@@ -87,6 +89,7 @@ function renderRadarChart(ctx) {
   if (props.valeur.every(val => Array.isArray(val) && val.length === 2)) {
     const latitudes = props.valeur.map(val => val[0]);
     const longitudes = props.valeur.map(val => val[1]);
+    const pointRadius = Math.max(1, 5 - Math.floor(latitudes.length / 50)); 
 
     new Chart(ctx, {
       type: 'radar',
@@ -100,19 +103,19 @@ function renderRadarChart(ctx) {
             borderColor: 'rgba(75, 192, 192, 1)', 
             backgroundColor: 'rgba(75, 192, 192, 0.2)', 
             pointBackgroundColor: 'rgba(75, 192, 192, 1)', 
-            pointRadius: 5, 
-            pointHoverRadius: 7,
+            pointRadius: pointRadius, 
+            pointHoverRadius: pointRadius + 2,
           },
-            {
+          {
             label: `Longitude`,
             data: longitudes,
             fill: true,
             borderColor: 'rgba(192, 75, 75, 1)',
             backgroundColor: 'rgba(0, 0, 0, 0.0)', 
             pointBackgroundColor: 'rgba(192, 75, 75, 1)',
-            pointRadius: 5, 
-            pointHoverRadius: 7,
-            }
+            pointRadius: pointRadius, 
+            pointHoverRadius: pointRadius + 2,
+          }
         ]
       },
       options: {
@@ -132,7 +135,39 @@ function renderRadarChart(ctx) {
     console.error('Les données pour le graphique radar ne sont pas au bon format.');
   }
 }
+
+function renderWindChart(ctx){
+  const pointRadius = Math.max(1, 5 - Math.floor(props.valeur.length / 50)); 
+  new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels: props.dates,
+      datasets: [{
+        label: "wind_heading",
+        data: props.valeur,
+        fill: true,
+        borderColor: 'rgba(75, 192, 192, 1)',
+        tension: 0.4,
+        borderWidth: 2,
+        backgroundColor: 'rgba(75, 192, 192, 0.2)', 
+        pointBackgroundColor: 'rgba(75, 192, 192, 1)',
+        pointRadius: pointRadius,
+        pointHoverRadius: pointRadius + 2,
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: {
+          suggestedMin: Math.min(...props.valeur) - 1,
+          suggestedMax: Math.max(...props.valeur) + 1,
+        },
+      },
+    },
+  });
+}
 </script>
+
 <style scoped>
 /* Styles spécifiques à votre composant */
 </style>

@@ -43,16 +43,21 @@ const getUnitForKey = (key) => {
 <template>
     <div class="graphs-container">
         <div v-for="mesure in mesures" :key="mesure" class="graph-item">
-            <template v-if="mesure !== 'position'">
+            <template v-if="mesure !== 'position' && mesure !== 'wind_heading'">
                 <h2>{{ mesure }}</h2>
             <Graphe :titre="mesure" :valeur="parsedData.map(item => item[mesure])"
             :dates="parsedData.map(item => item.date)" type="line" />
             </template>
         </div>
         <div v-if="mesures.includes('position')" class="graph-item">
-            <h2>Latitude et Longitude</h2>
+            <h2>Position</h2>
             <Graphe :titre="'Latitude et Longitude'" :valeur="parsedData.map(item => [item.lat, item.lon])"
             :dates="parsedData.map(item => item.date)" type="radar" />
+        </div>
+        <div v-if="mesures.includes('wind_heading')" class="graph-item">
+            <h2>Direction du vent</h2>
+            <Graphe :titre="mesure" :valeur="parsedData.map(item => item['wind_heading'])"
+                :dates="parsedData.map(item => item.date)" type="wind" />
         </div>
     </div>
 </template>
