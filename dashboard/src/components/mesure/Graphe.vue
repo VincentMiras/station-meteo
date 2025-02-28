@@ -5,7 +5,9 @@
 </template>
 
 <script setup>
-import { onMounted, ref, render } from 'vue';
+import { onMounted, ref } from 'vue';
+import { Chart, registerables } from 'chart.js';
+Chart.register(...registerables);
 
 // Définir les props
 const props = defineProps({
@@ -46,9 +48,9 @@ function renderChart() {
   const ctx = myChart.value.getContext('2d');
   if (props.type === 'radar') {
     renderRadarChart(ctx);
-  } else if (props.type === 'wind'){
+  } else if (props.type === 'wind') {
     renderWindChart(ctx);
-  }else {
+  } else {
     renderLineChart(ctx);
   }
 }
@@ -99,8 +101,8 @@ function renderRadarChart(ctx) {
       data: {
         labels: props.dates.map((date, index) => {
           if (index % Math.ceil(props.dates.length / 10) === 0) {
-        const d = new Date(date);
-        return `${d.toLocaleString('default', { month: 'short' })} ${d.getDate()} : ${d.getHours()}h`;
+            const d = new Date(date);
+            return `${d.toLocaleString('default', { month: 'short' })} ${d.getDate()} : ${d.getHours()}h`;
           }
           return '';
         }),
@@ -144,43 +146,96 @@ function renderRadarChart(ctx) {
     console.error('Les données pour le graphique radar ne sont pas au bon format.');
   }
 }
+
 function renderWindChart(ctx) {
-  const pointRadius = Math.max(1, 5 - Math.floor(props.valeur.length / 50));
-  new Chart(ctx, {
-    type: 'polarArea',
-    data: {
-      labels: ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'],
-      datasets: [{
-        data: props.valeur.map(val => val),
-        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-        borderColor: 'rgba(75, 192, 192, 1)',
-        pointBackgroundColor: 'rgba(75, 192, 192, 1)',
-        pointRadius: pointRadius,
-        pointHoverRadius: pointRadius + 2,
-      }]
+  const data_wind = {
+    labels: ['N', 'NNE', 'NE', 'NEE', 'E', 'SEE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'SWW', 'W', 'NWW', 'NW', 'NNW'],
+    datasets: [{
+      label: 'Rosace',
+      data: new Array(16).fill(0),
+      fill: true,
+      borderColor: 'rgba(75, 192, 192, 1)',
+      backgroundColor: 'rgba(75, 192, 192, 0.2)',
+      pointBackgroundColor: 'rgba(75, 192, 192, 1)',
+      pointRadius: 5,
+      pointHoverRadius: 7,
+    }]
+  };
+
+  props.valeur.forEach(degree => {
+    const index = Math.round(degree / 22.5) % 16;
+    data_wind.datasets[0].data[index]++;
+  });
+
+  const total = props.valeur.length;
+  data_wind.datasets[0].data = data_wind.datasets[0].data.map(count => (count / total) * 100);
+
+  const options = {
+    plugins: {
+      legend: {
+        display: true,
+        fullWidth: true,
+        position: 'bottom',
+      },
+      title: {
+        display: true,
+        text: 'Windrose test',
+        position: "top",
+        font: {
+          size: 20
+        }
+      },
+      tooltip: {
+        enabled: true,
+        caretSize: 10,
+        backgroundColor: 'rgba(0, 0, 55, 0.5)'
+      }
     },
-    options: {
-      responsive: true,
-      scales: {
-        r: {
-          angleLines: {
-            display: true
+    scales: {
+      r: {
+        startAngle: -11.25,
+        angleLines: {
+          display: true,
+          lineWidth: 1,
+          borderDash: [6, 8]
+        },
+        grid: {
+          lineWidth: 1
+        },
+        ticks: {
+          color: 'black',
+          backdropColor: "rgba(0,0,0,0)",
+          stepSize: 10,
+          font: {
+            size: 12
           },
-          suggestedMin: 0,
-          suggestedMax: Math.max(...props.valeur) + 1,
-          ticks: {
-            stepSize: 1,
-            callback: function(value) {
-              const directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
-              return directions[value % 16];
-            }
+          z: 1,
+          callback: function (value, index) {
+            if (value !== 0) return value + '%';
+          }
+        },
+        pointLabels: {
+          display: true,
+          centerPointLabels: true,
+          font: {
+            size: 12
+          },
+          callback: function (value, index) {
+            if ((index % 2) === 0) return value;
           }
         }
       }
-    },
+    }
+  };
+
+  new Chart(ctx, {
+    type: 'polarArea',
+    data: data_wind,
+    options: options
   });
 }
 </script>
+
 <style scoped>
 /* Styles spécifiques à votre composant */
 </style>
