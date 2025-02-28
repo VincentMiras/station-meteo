@@ -4,16 +4,20 @@ import { useDataStore } from '@/stores/DataStore';
 import Mesure from '@/components/mesure/MesureUnique.vue';
 import Carte from '@/components/mesure/Carte.vue';
 import { computed, isProxy, toRaw } from 'vue';
+import { useRouter } from 'vue-router';
 
 const weatherStore = useWeatherStore();
 const dataStore = useDataStore();
-
+const router = useRouter()
 const mesures = weatherStore.selectedMeasures;
 const weatherData = dataStore.data;
 
 let json = weatherData;
 if (isProxy(weatherData)){
     json = toRaw(weatherData)
+}
+if (json==null){
+    router.push('/liveview')
 }
 
 console.log(json)
