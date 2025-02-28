@@ -77,13 +77,13 @@ const labels = {
 
 <template>
     <div>
-        <button @click="displaySameGraph = !displaySameGraph" id = "displaySameGraph">
+        <button v-if="parsedData.length > 1" @click="displaySameGraph = !displaySameGraph" id="displaySameGraph">
             {{ displaySameGraph ? 'Afficher les données sur des graphiques séparés' : 'Afficher les données sur le même graphique' }}
         </button>
         <div class="graphs-container">
             <template v-if="displaySameGraph">
                 <div v-for="mesure in mesures" :key="mesure" class="graph-item">
-                    <template v-if="mesure !== 'position'">
+                    <template v-if="mesure !== 'position' && mesure !== 'wind_heading'">
                         <h3>{{ labels[mesure] }}</h3>
                         <Graphe :titre="`${labels[mesure]} (${getUnitForKey(mesure)})`" 
                                 :valeur="parsedData.map(station => station.data.map(item => item[mesure]))"
@@ -101,16 +101,17 @@ const labels = {
                 <div v-if="mesures.includes('wind_heading')" class="graph-item">
                     <h3>{{ labels['wind_heading'] }} ({{ getUnitForKey('wind_heading') }})</h3>
                     <Graphe :titre="`${labels['wind_heading']} (${getUnitForKey('wind_heading')})`" 
-                            :valeur="parsedData.map(station => station.data.map(item => item['wind_heading']))"
+                            :valeur="[parsedData.flatMap(station => station.data.map(item => item['wind_heading']))]"
                             :dates="parsedData[0].data.map(item => item.date)" 
                             type="wind" />
                 </div>
+                
             </template>
             <template v-else>
                 <div v-for="station in parsedData" :key="station.id">
                     <h2>Station {{ station.id }}</h2>
                     <div v-for="mesure in mesures" :key="mesure" class="graph-item">
-                        <template v-if="mesure !== 'position'">
+                        <template v-if="mesure !== 'position' && mesure !== 'wind_heading'">
                             <h3>{{ labels[mesure] }}</h3>
                             <Graphe :titre="`${labels[mesure]} (${getUnitForKey(mesure)})`" 
                                     :valeur="[station.data.map(item => item[mesure])]"
@@ -127,7 +128,7 @@ const labels = {
                     </div>
                     <div v-if="mesures.includes('wind_heading')" class="graph-item">
                         <h3>{{ labels['wind_heading'] }}</h3>
-                        <Graphe :titre="`${labels['wind_heading']} (${getUnitForKey('wind_heading')})`" 
+                        <Graphe :titre="`${labels['wind_heading']}`" 
                                 :valeur="[station.data.map(item => item['wind_heading'])]"
                                 :dates="station.data.map(item => item.date)" 
                                 type="wind" />

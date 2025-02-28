@@ -89,84 +89,85 @@ function renderLineChart(ctx) {
 
 // Fonction pour créer un graphique radar
 function renderRadarChart(ctx) {
-  if (props.valeur.every(val => Array.isArray(val) && val.length === 2)) {
-    const latitudes = props.valeur.map(val => val[0]);
-    const longitudes = props.valeur.map(val => val[1]);
-    const pointRadius = Math.max(1, 5 - Math.floor(latitudes.length / 50)); 
+  const datasets = props.valeur.map((valeurs, index) => {
+    const latitudes = valeurs.map(val => val[0]);
+    const longitudes = valeurs.map(val => val[1]);
+    const pointRadius = Math.max(1, 5 - Math.floor(latitudes.length / 50));
 
-    new Chart(ctx, {
-      type: 'radar',
-      data: {
-        labels: props.dates.map((date, index) => {
-          if (index % Math.ceil(props.dates.length / 10) === 0) {
-            const d = new Date(date);
-            return `${d.toLocaleString('default', { month: 'short' })} ${d.getDate()} : ${d.getHours()}h`;
-          }
-          return '';
-        }),
-        datasets: [
-          {
-            label: `Latitude (°)`,
-            data: latitudes, 
-            fill: true,
-            borderColor: 'rgba(75, 192, 192, 1)', 
-            backgroundColor: 'rgba(75, 192, 192, 0.2)', 
-            pointBackgroundColor: 'rgba(75, 192, 192, 1)', 
-            pointRadius: pointRadius, 
-            pointHoverRadius: pointRadius + 2,
-          },
-          {
-            label: `Longitude (°)`,
-            data: longitudes,
-            fill: true,
-            borderColor: 'rgba(192, 75, 75, 1)',
-            backgroundColor: 'rgba(0, 0, 0, 0.0)', 
-            pointBackgroundColor: 'rgba(192, 75, 75, 1)',
-            pointRadius: pointRadius, 
-            pointHoverRadius: pointRadius + 2,
-          }
-        ]
+    return [
+      {
+        label: `Station ${index + 1} Latitude (°)`,
+        data: latitudes,
+        fill: true,
+        borderColor: `rgba(${75 + index * 50}, 192, 192, 1)`,
+        backgroundColor: `rgba(${75 + index * 50}, 192, 192, 0.2)`,
+        pointBackgroundColor: `rgba(${75 + index * 50}, 192, 192, 1)`,
+        pointRadius: pointRadius,
+        pointHoverRadius: pointRadius + 2,
       },
-      options: {
-        responsive: true,
-        scales: {
-          r: {
-            angleLines: {
-              display: true
-            },
-            suggestedMin: Math.min(...latitudes.concat(longitudes)) - 1,
-            suggestedMax: Math.max(...latitudes.concat(longitudes)) + 1,
-          }
+      {
+        label: `Station ${index + 1} Longitude (°)`,
+        data: longitudes,
+        fill: true,
+        borderColor: `rgba(${192 - index * 50}, 75, 75, 1)`,
+        backgroundColor: 'rgba(0, 0, 0, 0.0)',
+        pointBackgroundColor: `rgba(${192 - index * 50}, 75, 75, 1)`,
+        pointRadius: pointRadius,
+        pointHoverRadius: pointRadius + 2,
+      }
+    ];
+  }).flat();
+
+  new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels: props.dates.map((date, index) => {
+        if (index % Math.ceil(props.dates.length / 10) === 0) {
+          const d = new Date(date);
+          return `${d.toLocaleString('default', { month: 'short' })} ${d.getDate()} : ${d.getHours()}h`;
         }
-      },
-    });
-  } else {
-    console.error('Les données pour le graphique radar ne sont pas au bon format.');
-  }
+        return '';
+      }),
+      datasets: datasets
+    },
+    options: {
+      responsive: true,
+      scales: {
+        r: {
+          angleLines: {
+            display: true
+          },
+          suggestedMin: Math.min(...props.valeur.flat().map(val => Math.min(val[0], val[1]))) - 1,
+          suggestedMax: Math.max(...props.valeur.flat().map(val => Math.max(val[0], val[1]))) + 1,
+        }
+      }
+    },
+  });
 }
 
 function renderWindChart(ctx) {
   const data_wind = {
     labels: ['N', 'NNE', 'NE', 'NEE', 'E', 'SEE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'SWW', 'W', 'NWW', 'NW', 'NNW'],
-    datasets: [{
-      label: 'Rosace',
-      data: new Array(16).fill(0),
-      fill: true,
-      borderColor: 'rgba(75, 192, 192, 1)',
-      backgroundColor: 'rgba(75, 192, 192, 0.2)',
-      pointBackgroundColor: 'rgba(75, 192, 192, 1)',
-      pointRadius: 5,
-      pointHoverRadius: 7,
-    }]
+    datasets: props.valeur.map((valeurs, index) => {
+      const data = new Array(16).fill(0);
+      (Array.isArray(valeurs) ? valeurs : []).forEach(degree => {
+        const idx = Math.round(degree / 22.5) % 16;
+        data[idx]++;
+      });
+      const total = valeurs.length;
+      return {
+        label: `Station ${index + 1}`,
+        data: data.map(count => (count / total) * 100),
+        fill: true,
+        borderColor: `rgba(${75 + index * 50}, 192, 192, 1)`,
+        backgroundColor: `rgba(${75 + index * 50}, 192, 192, 0.2)`,
+        pointBackgroundColor: `rgba(${75 + index * 50}, 192, 192, 1)`,
+        pointRadius: 5,
+        pointHoverRadius: 7,
+      };
+    })
   };
 
-  props.valeur.forEach(degree => {
-    const index = Math.round(degree / 22.5) % 16;
-    data_wind.datasets[0].data[index]++;
-  });
-
-  const total = props.valeur.length;
-  data_wind.datasets[0].data = data_wind.datasets[0].data.map(count => (count / total) * 100);
   const options = {
     plugins: {
       legend: {
@@ -207,7 +208,7 @@ function renderWindChart(ctx) {
             size: 12
           },
           z: 1,
-          callback: function (value, index) {
+          callback: function (value) {
             if (value !== 0) return value + '%';
           }
         },
