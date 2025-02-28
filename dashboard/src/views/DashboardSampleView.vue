@@ -56,7 +56,7 @@ const getUnitForKey = (key) => {
         </div>
         <div v-if="mesures.includes('wind_heading')" class="graph-item">
             <h2>Direction du vent</h2>
-            <Graphe :titre="mesure" :valeur="parsedData.map(item => item['wind_heading'])"
+            <Graphe :titre="'Rosace'" :valeur="parsedData.map(item => item['wind_heading'])"
                 :dates="parsedData.map(item => item.date)" type="wind" />
         </div>
     </div>

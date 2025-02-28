@@ -5,7 +5,9 @@
 </template>
 
 <script setup>
-import { onMounted, ref, render } from 'vue';
+import { onMounted, ref } from 'vue';
+import { Chart, registerables } from 'chart.js';
+Chart.register(...registerables);
 
 // Définir les props
 const props = defineProps({
@@ -46,9 +48,9 @@ function renderChart() {
   const ctx = myChart.value.getContext('2d');
   if (props.type === 'radar') {
     renderRadarChart(ctx);
-  } else if (props.type === 'wind'){
+  } else if (props.type === 'wind') {
     renderWindChart(ctx);
-  }else {
+  } else {
     renderLineChart(ctx);
   }
 }
@@ -59,7 +61,10 @@ function renderLineChart(ctx) {
   new Chart(ctx, {
     type: 'line',
     data: {
-      labels: props.dates,
+      labels: props.dates.map(date => {
+        const d = new Date(date);
+        return `${d.toLocaleString('default', { month: 'short' })} ${d.getDate()} : ${d.getHours()}h`;
+      }),
       datasets: [{
         label: props.titre,
         data: props.valeur,
@@ -94,7 +99,13 @@ function renderRadarChart(ctx) {
     new Chart(ctx, {
       type: 'radar',
       data: {
-        labels: props.dates,
+        labels: props.dates.map((date, index) => {
+          if (index % Math.ceil(props.dates.length / 10) === 0) {
+            const d = new Date(date);
+            return `${d.toLocaleString('default', { month: 'short' })} ${d.getDate()} : ${d.getHours()}h`;
+          }
+          return '';
+        }),
         datasets: [
           {
             label: `Latitude`,
@@ -136,34 +147,91 @@ function renderRadarChart(ctx) {
   }
 }
 
-function renderWindChart(ctx){
-  const pointRadius = Math.max(1, 5 - Math.floor(props.valeur.length / 50)); 
-  new Chart(ctx, {
-    type: 'radar',
-    data: {
-      labels: props.dates,
-      datasets: [{
-        label: "wind_heading",
-        data: props.valeur,
-        fill: true,
-        borderColor: 'rgba(75, 192, 192, 1)',
-        tension: 0.4,
-        borderWidth: 2,
-        backgroundColor: 'rgba(75, 192, 192, 0.2)', 
-        pointBackgroundColor: 'rgba(75, 192, 192, 1)',
-        pointRadius: pointRadius,
-        pointHoverRadius: pointRadius + 2,
-      }]
-    },
-    options: {
-      responsive: true,
-      scales: {
-        y: {
-          suggestedMin: Math.min(...props.valeur) - 1,
-          suggestedMax: Math.max(...props.valeur) + 1,
-        },
+function renderWindChart(ctx) {
+  const data_wind = {
+    labels: ['N', 'NNE', 'NE', 'NEE', 'E', 'SEE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'SWW', 'W', 'NWW', 'NW', 'NNW'],
+    datasets: [{
+      label: 'Rosace',
+      data: new Array(16).fill(0),
+      fill: true,
+      borderColor: 'rgba(75, 192, 192, 1)',
+      backgroundColor: 'rgba(75, 192, 192, 0.2)',
+      pointBackgroundColor: 'rgba(75, 192, 192, 1)',
+      pointRadius: 5,
+      pointHoverRadius: 7,
+    }]
+  };
+
+  props.valeur.forEach(degree => {
+    const index = Math.round(degree / 22.5) % 16;
+    data_wind.datasets[0].data[index]++;
+  });
+
+  const total = props.valeur.length;
+  data_wind.datasets[0].data = data_wind.datasets[0].data.map(count => (count / total) * 100);
+
+  const options = {
+    plugins: {
+      legend: {
+        display: true,
+        fullWidth: true,
+        position: 'bottom',
       },
+      title: {
+        display: true,
+        text: 'Windrose test',
+        position: "top",
+        font: {
+          size: 20
+        }
+      },
+      tooltip: {
+        enabled: true,
+        caretSize: 10,
+        backgroundColor: 'rgba(0, 0, 55, 0.5)'
+      }
     },
+    scales: {
+      r: {
+        startAngle: -11.25,
+        angleLines: {
+          display: true,
+          lineWidth: 1,
+          borderDash: [6, 8]
+        },
+        grid: {
+          lineWidth: 1
+        },
+        ticks: {
+          color: 'black',
+          backdropColor: "rgba(0,0,0,0)",
+          stepSize: 10,
+          font: {
+            size: 12
+          },
+          z: 1,
+          callback: function (value, index) {
+            if (value !== 0) return value + '%';
+          }
+        },
+        pointLabels: {
+          display: true,
+          centerPointLabels: true,
+          font: {
+            size: 12
+          },
+          callback: function (value, index) {
+            if ((index % 2) === 0) return value;
+          }
+        }
+      }
+    }
+  };
+
+  new Chart(ctx, {
+    type: 'polarArea',
+    data: data_wind,
+    options: options
   });
 }
 </script>
