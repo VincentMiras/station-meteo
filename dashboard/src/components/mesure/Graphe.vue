@@ -57,32 +57,30 @@ function renderChart() {
 
 // Fonction pour créer un graphique en ligne
 function renderLineChart(ctx) {
-  const pointRadius = Math.max(1, 5 - Math.floor(props.valeur.length / 50));
+  const datasets = props.valeur.map((valeurs, index) => ({
+    label: `Station ${index + 1}`,
+    data: valeurs,
+    fill: false,
+    borderColor: `rgba(${75 + index * 50}, 192, 192, 1)`,
+    tension: 0.4,
+    borderWidth: 2,
+    pointBackgroundColor: `rgba(${75 + index * 50}, 192, 192, 1)`,
+    pointRadius: 5,
+    pointHoverRadius: 7,
+  }));
+
   new Chart(ctx, {
     type: 'line',
     data: {
-      labels: props.dates.map(date => {
-        const d = new Date(date);
-        return `${d.toLocaleString('default', { month: 'short' })} ${d.getDate()} : ${d.getHours()}h`;
-      }),
-      datasets: [{
-        label: props.titre,
-        data: props.valeur,
-        fill: false,
-        borderColor: 'rgba(75, 192, 192, 1)',
-        tension: 0.4,
-        borderWidth: 2,
-        pointBackgroundColor: 'rgba(75, 192, 192, 1)',
-        pointRadius: pointRadius,
-        pointHoverRadius: pointRadius + 2,
-      }]
+      labels: props.dates,
+      datasets: datasets
     },
     options: {
       responsive: true,
       scales: {
         y: {
-          suggestedMin: Math.min(...props.valeur) - 1,
-          suggestedMax: Math.max(...props.valeur) + 1,
+          suggestedMin: Math.min(...props.valeur.flat()) - 1,
+          suggestedMax: Math.max(...props.valeur.flat()) + 1,
         },
       },
     },

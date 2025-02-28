@@ -2,7 +2,7 @@
 import { useWeatherStore } from '@/stores/WeatherStore';
 import { useDataStore } from '@/stores/DataStore';
 import Graphe from '@/components/mesure/Graphe.vue';
-import { isProxy, toRaw } from 'vue';
+import { isProxy, toRaw, computed, ref } from 'vue';
 
 const weatherStore = useWeatherStore();
 const dataStore = useDataStore();
@@ -17,14 +17,37 @@ if (isProxy(weatherData)) {
     json = toRaw(weatherData);
 }
 
-const parsedData = Object.keys(json.data)
-    .filter(key => key !== 'id' && key !== 'unit')
-    .map(key => ({
-        date: key,
-        lat: json.data[key].lat,
-        lon: json.data[key].lon,
-        ...json.data[key]
-    }));
+const displaySameGraph = ref(false);
+
+const parsedData = computed(() => {
+    if (Array.isArray(json)) {
+        return json.map(station => ({
+            id: station.id,
+            data: Object.keys(station.data)
+                .filter(key => key !== 'id' && key !== 'unit')
+                .map(key => ({
+                    date: key,
+                    lat: station.data[key].lat,
+                    lon: station.data[key].lon,
+                    ...station.data[key]
+                })),
+            unit: station.unit
+        }));
+    } else {
+        return [{
+            id: json.id,
+            data: Object.keys(json.data)
+                .filter(key => key !== 'id' && key !== 'unit')
+                .map(key => ({
+                    date: key,
+                    lat: json.data[key].lat,
+                    lon: json.data[key].lon,
+                    ...json.data[key]
+                })),
+            unit: json.unit
+        }];
+    }
+});
 
 const units = json.unit || {};
 
@@ -53,23 +76,64 @@ const labels = {
 </script>
 
 <template>
-    <div class="graphs-container">
-        <div v-for="mesure in mesures" :key="mesure" class="graph-item">
-            <template v-if="mesure !== 'position'">
-                <h2>{{ labels[mesure] }}</h2>
-                <Graphe :titre="`${labels[mesure]} (${getUnitForKey(mesure)})`" :valeur="parsedData.map(item => item[mesure])"
-                :dates="parsedData.map(item => item.date)" type="line" />
+    <div>
+        <button @click="displaySameGraph = !displaySameGraph" id = "displaySameGraph">
+            {{ displaySameGraph ? 'Afficher les données sur des graphiques séparés' : 'Afficher les données sur le même graphique' }}
+        </button>
+        <div class="graphs-container">
+            <template v-if="displaySameGraph">
+                <div v-for="mesure in mesures" :key="mesure" class="graph-item">
+                    <template v-if="mesure !== 'position'">
+                        <h3>{{ labels[mesure] }}</h3>
+                        <Graphe :titre="`${labels[mesure]} (${getUnitForKey(mesure)})`" 
+                                :valeur="parsedData.map(station => station.data.map(item => item[mesure]))"
+                                :dates="parsedData[0].data.map(item => item.date)" 
+                                type="line" />
+                    </template>
+                </div>
+                <div v-if="mesures.includes('position')" class="graph-item">
+                    <h3>Position</h3>
+                    <Graphe :titre="'Latitude et Longitude'" 
+                            :valeur="parsedData.map(station => station.data.map(item => [item.lat, item.lon]))"
+                            :dates="parsedData[0].data.map(item => item.date)" 
+                            type="radar" />
+                </div>
+                <div v-if="mesures.includes('wind_heading')" class="graph-item">
+                    <h3>{{ labels['wind_heading'] }} ({{ getUnitForKey('wind_heading') }})</h3>
+                    <Graphe :titre="`${labels['wind_heading']} (${getUnitForKey('wind_heading')})`" 
+                            :valeur="parsedData.map(station => station.data.map(item => item['wind_heading']))"
+                            :dates="parsedData[0].data.map(item => item.date)" 
+                            type="wind" />
+                </div>
             </template>
-        </div>
-        <div v-if="mesures.includes('position')" class="graph-item">
-            <h2>Position</h2>
-            <Graphe :titre="'Latitude et Longitude'" :valeur="parsedData.map(item => [item.lat, item.lon])"
-            :dates="parsedData.map(item => item.date)" type="radar" />
-        </div>
-        <div v-if="mesures.includes('wind_heading')" class="graph-item">
-            <h2>{{ labels['wind_heading'] }}</h2>
-            <Graphe :titre="`${labels['wind_heading']} (${getUnitForKey('wind_heading')})`" :valeur="parsedData.map(item => item['wind_heading'])"
-                :dates="parsedData.map(item => item.date)" type="wind" />
+            <template v-else>
+                <div v-for="station in parsedData" :key="station.id">
+                    <h2>Station {{ station.id }}</h2>
+                    <div v-for="mesure in mesures" :key="mesure" class="graph-item">
+                        <template v-if="mesure !== 'position'">
+                            <h3>{{ labels[mesure] }}</h3>
+                            <Graphe :titre="`${labels[mesure]} (${getUnitForKey(mesure)})`" 
+                                    :valeur="[station.data.map(item => item[mesure])]"
+                                    :dates="station.data.map(item => item.date)" 
+                                    type="line" />
+                        </template>
+                    </div>
+                    <div v-if="mesures.includes('position')" class="graph-item">
+                        <h3>Position</h3>
+                        <Graphe :titre="'Latitude et Longitude'" 
+                                :valeur="[station.data.map(item => [item.lat, item.lon])]"
+                                :dates="station.data.map(item => item.date)" 
+                                type="radar" />
+                    </div>
+                    <div v-if="mesures.includes('wind_heading')" class="graph-item">
+                        <h3>{{ labels['wind_heading'] }}</h3>
+                        <Graphe :titre="`${labels['wind_heading']} (${getUnitForKey('wind_heading')})`" 
+                                :valeur="[station.data.map(item => item['wind_heading'])]"
+                                :dates="station.data.map(item => item.date)" 
+                                type="wind" />
+                    </div>
+                </div>
+            </template>
         </div>
     </div>
 </template>
@@ -89,6 +153,10 @@ const labels = {
 
 .graphs-container > .graph-item:only-child {
     grid-column: span 1;
+    display: flex;
+    justify-content: center;
+}
+.displaySameGraph {
     display: flex;
     justify-content: center;
 }
