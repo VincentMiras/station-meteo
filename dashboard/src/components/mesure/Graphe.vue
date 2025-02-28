@@ -108,7 +108,7 @@ function renderRadarChart(ctx) {
         }),
         datasets: [
           {
-            label: `Latitude`,
+            label: `Latitude (°)`,
             data: latitudes, 
             fill: true,
             borderColor: 'rgba(75, 192, 192, 1)', 
@@ -118,7 +118,7 @@ function renderRadarChart(ctx) {
             pointHoverRadius: pointRadius + 2,
           },
           {
-            label: `Longitude`,
+            label: `Longitude (°)`,
             data: longitudes,
             fill: true,
             borderColor: 'rgba(192, 75, 75, 1)',
@@ -169,17 +169,16 @@ function renderWindChart(ctx) {
 
   const total = props.valeur.length;
   data_wind.datasets[0].data = data_wind.datasets[0].data.map(count => (count / total) * 100);
-
   const options = {
     plugins: {
       legend: {
-        display: true,
+        display: false,
         fullWidth: true,
         position: 'bottom',
       },
       title: {
         display: true,
-        text: 'Windrose test',
+        text: 'Windrose',
         position: "top",
         font: {
           size: 20
