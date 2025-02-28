@@ -50,15 +50,30 @@ const labels = {
 
 <template>
     <div class="container">
-        <div v-for="(station, stationIndex) in json" :key="stationIndex">
+        <div v-if="Array.isArray(json)">
+            <div v-for="(station, stationIndex) in json" :key="stationIndex">
+                <div v-for="(measure, index) in mesures" :key="index">
+                    <template v-if="measure !== 'position'">
+                        <div class="measure-item">
+                            <Mesure 
+                                :titre="labels[measure]" 
+                                :station="'station n°' + station.id"
+                                :valeur="station.data[measure]" 
+                                :unite="station.unit[measure]" />
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+        <div v-else>
             <div v-for="(measure, index) in mesures" :key="index">
                 <template v-if="measure !== 'position'">
                     <div class="measure-item">
                         <Mesure 
                             :titre="labels[measure]" 
-                            :station="'station n°'+station.id"
-                            :valeur="station.data[measure]" 
-                            :unite="station.unit[measure]" 
+                            :station="'station n°' + json.id"
+                            :valeur="json.data[measure]" 
+                            :unite="json.unit[measure]" 
                         />
                     </div>
                 </template>
