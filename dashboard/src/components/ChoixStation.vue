@@ -42,7 +42,7 @@ const weatherStore = useWeatherStore();
 }
 
 .station-option input[type="checkbox"] {
-    margin-right: 10px;
+    margin-right: 10px;    justify-content: center;
     transform: scale(1.2);
 }
 

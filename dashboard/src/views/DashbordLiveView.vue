@@ -55,31 +55,27 @@ const labels = {
 <template>
     <div class="container">
         <div v-if="Array.isArray(json)">
-            <div v-for="(station, stationIndex) in json" :key="stationIndex">
-                <div v-for="(measure, index) in mesures" :key="index">
+            <div v-for="(measure, index) in mesures" :key="index" class="measure-row">
+                <div v-for="(station, stationIndex) in json" :key="stationIndex" class="measure-item">
                     <template v-if="measure !== 'position'">
-                        <div class="measure-item">
-                            <Mesure 
-                                :titre="labels[measure]" 
-                                :station="'station n°' + station.id"
-                                :valeur="station.data[measure]" 
-                                :unite="station.unit[measure]" />
-                        </div>
+                        <Mesure 
+                            :titre="labels[measure]" 
+                            :station="'station n°' + station.id"
+                            :valeur="station.data[measure]" 
+                            :unite="station.unit[measure]" />
                     </template>
                 </div>
             </div>
         </div>
-        <div v-else>
-            <div v-for="(measure, index) in mesures" :key="index">
+        <div v-else class="station-container">
+            <div v-for="(measure, index) in mesures" :key="index" class="measure-item">
                 <template v-if="measure !== 'position'">
-                    <div class="measure-item">
-                        <Mesure 
-                            :titre="labels[measure]" 
-                            :station="'station n°' + json.id"
-                            :valeur="json.data[measure]" 
-                            :unite="json.unit[measure]" 
-                        />
-                    </div>
+                    <Mesure 
+                        :titre="labels[measure]" 
+                        :station="'station n°' + json.id"
+                        :valeur="json.data[measure]" 
+                        :unite="json.unit[measure]" 
+                    />
                 </template>
             </div>
         </div>
@@ -93,20 +89,30 @@ const labels = {
 
 <style scoped>
 .container {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 2vh;
+    display: flex;
+    flex-direction: column;
+    gap: 2vh;
+}
+
+.measure-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2vh;
 }
 
 .measure-item {
-  box-sizing: border-box;
+    box-sizing: border-box;
+    flex: 1 1 calc(50% - 2vh);  
+}
+
+.station-container .measure-item {
+    flex: 1 1 100%;
 }
 
 .map-item {
-  grid-column: 1 / -1; 
-  margin-top: 1vh;
+    width: 100%;
+    margin-top: 1vh;
 }
 </style>
-
 
 
