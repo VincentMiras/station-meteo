@@ -86,7 +86,6 @@ const labels = {
 </template>
 
 
-
 <style scoped>
 .container {
     display: flex;
@@ -102,11 +101,17 @@ const labels = {
 
 .measure-item {
     box-sizing: border-box;
-    flex: 1 1 calc(50% - 2vh);  
+    flex: 1 1 calc(50% - 2vh);
+}
+
+.station-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2vh;
 }
 
 .station-container .measure-item {
-    flex: 1 1 100%;
+    flex: 1 1 calc(50% - 2vh);
 }
 
 .map-item {
