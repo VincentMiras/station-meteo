@@ -77,7 +77,7 @@ const labels = {
 
 <template>
     <div>
-        <button v-if="parsedData.length > 1" @click="displaySameGraph = !displaySameGraph" id="displaySameGraph">
+        <button v-if="parsedData.length > 1" @click="displaySameGraph = !displaySameGraph" class="displaySameGraph">
             {{ displaySameGraph ? 'Afficher les données sur des graphiques séparés' : 'Afficher les données sur le même graphique' }}
         </button>
         <div class="graphs-container">
@@ -158,7 +158,32 @@ const labels = {
     justify-content: center;
 }
 .displaySameGraph {
+    /* easter egg de la requetête chat GPT qui a produit ce bouton: add an incredibly complicated css so it looks like bouton de la mort qui tue */
     display: flex;
     justify-content: center;
+    margin-bottom: 20px;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #ffffff;
+    background: linear-gradient(45deg, #ff0000, #ff7f00, #cece53, #7fff00, #00ff00, #00ff7f, #00ffff, #007fff, #0000ff, #7f00ff, #ff00ff, #ff007f);
+    background-size: 400% 400%;
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.7);
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    animation: gradientAnimation 5s ease infinite;
+}
+
+@keyframes gradientAnimation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.displaySameGraph:hover {
+    transform: scale(1.1);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
 }
 </style>
