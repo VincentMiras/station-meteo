@@ -3,10 +3,11 @@ import { useWeatherStore } from '@/stores/WeatherStore';
 import { useDataStore } from '@/stores/DataStore';
 import Graphe from '@/components/mesure/Graphe.vue';
 import { isProxy, toRaw } from 'vue';
+import { useRouter } from 'vue-router';
 
 const weatherStore = useWeatherStore();
 const dataStore = useDataStore();
-
+const router = useRouter();
 const mesures = weatherStore.selectedMeasures;
 const weatherData = dataStore.data;
 const loading = dataStore.loading;
@@ -14,7 +15,11 @@ const error = dataStore.error;
 
 let json = weatherData;
 if (isProxy(weatherData)) {
-    json = toRaw(weatherData);
+    json = toRaw(weatherData)
+}
+
+if (json==null){
+    router.push('/sampleview')
 }
 
 const parsedData = Object.keys(json.data)
