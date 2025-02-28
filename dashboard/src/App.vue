@@ -5,12 +5,11 @@ import HelloWorld from './components/HelloWorld.vue'
 
 <template>
   <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
+    <img alt="Vue logo" class="logo" src="../favicon.ico" width="125" height="125" />
     <nav>
       <RouterLink to="/">Home</RouterLink>
       <RouterLink to="/liveview">Live</RouterLink>
       <RouterLink to="/sampleview">Sample</RouterLink>
-      <RouterLink to="/test">Test</RouterLink>
     </nav>
   </header>
   <main>
@@ -39,7 +38,7 @@ main {
 }
 
 .logo {
-  height: 30px;
+  height: 40px;
   width: auto;
 }
 
