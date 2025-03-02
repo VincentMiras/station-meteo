@@ -83,7 +83,7 @@ const labels = {
         <div class="graphs-container">
             <template v-if="displaySameGraph">
                 <div v-for="mesure in mesures" :key="mesure" class="graph-item">
-                    <template v-if="mesure !== 'position' && mesure !== 'wind_heading'">
+                    <template v-if="mesure !== 'position'">
                         <h3>{{ labels[mesure] }}</h3>
                         <Graphe :titre="`${labels[mesure]} (${getUnitForKey(mesure)})`" 
                                 :valeur="parsedData.map(station => station.data.map(item => item[mesure]))"
