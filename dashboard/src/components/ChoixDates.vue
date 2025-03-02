@@ -9,7 +9,7 @@ const weatherStore = useWeatherStore();
     <div class="date-container">
         <label for="start">Start date:</label>
         <input type="datetime-local" id="start" name="start" :max="weatherStore.endDate"
-            v-model="weatherStore.startDate" />
+            v-model="weatherStore.startDate" :placeholder="new Date(Date.now() - 86400000).toISOString().slice(0, 16)" />
 
         <label for="end">End date (optional):</label>
         <input type="datetime-local" id="end" name="end" :min="weatherStore.startDate" v-model="weatherStore.endDate" />
