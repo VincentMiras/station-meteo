@@ -212,6 +212,7 @@ const labels = {
 }
 
 .displaySameGraph {
+    /* easter egg de la requetête chat GPT qui a produit ce bouton: add an incredibly complicated css so it looks like bouton de la mort qui tue */
     display: flex;
     justify-content: center;
     margin-bottom: 20px;
