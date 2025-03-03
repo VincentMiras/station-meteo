@@ -251,5 +251,4 @@ function renderWindChart(ctx) {
 </script>
 
 <style scoped>
-
 </style>
