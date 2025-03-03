@@ -27,6 +27,11 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  unit: {
+    type: String,
+    required: true,
+    default: ''
+  }
 });
 
 // Référence au canvas
@@ -61,10 +66,10 @@ function renderLineChart(ctx) {
     label: `Station ${index + 1}`,
     data: valeurs,
     fill: false,
-    borderColor: `rgba(${75 + index * 50}, 192, 192, 1)`,
+    borderColor: `rgba(${75 + index * 50}, ${192 + index * 50}, 192, 1)`,
     tension: 0.4,
     borderWidth: 2,
-    pointBackgroundColor: `rgba(${75 + index * 50}, 192, 192, 1)`,
+    pointBackgroundColor: `rgba(${75 + index * 50}, ${192+ index * 50}, 192, 1)`,
     pointRadius: 5,
     pointHoverRadius: 7,
   }));
@@ -81,6 +86,10 @@ function renderLineChart(ctx) {
         y: {
           suggestedMin: Math.min(...props.valeur.flat()) - 1,
           suggestedMax: Math.max(...props.valeur.flat()) + 1,
+          title: {
+            display: true,
+            text: props.unit
+          }
         },
       },
     },
@@ -99,9 +108,9 @@ function renderRadarChart(ctx) {
         label: `Station ${index + 1} Latitude (°)`,
         data: latitudes,
         fill: true,
-        borderColor: `rgba(${75 + index * 50}, 192, 192, 1)`,
-        backgroundColor: `rgba(${75 + index * 50}, 192, 192, 0.2)`,
-        pointBackgroundColor: `rgba(${75 + index * 50}, 192, 192, 1)`,
+        borderColor: `rgba(${75 + index * 50}, ${192 - index * 30}, ${192 - index * 30}, 1)`,
+        backgroundColor: `rgba(${75 + index * 50}, ${192 - index * 30}, ${192 - index * 30}, 0.2)`,
+        pointBackgroundColor: `rgba(${75 + index * 50}, ${192 - index * 30}, ${192 - index * 30}, 1)`,
         pointRadius: pointRadius,
         pointHoverRadius: pointRadius + 2,
       },
@@ -109,9 +118,9 @@ function renderRadarChart(ctx) {
         label: `Station ${index + 1} Longitude (°)`,
         data: longitudes,
         fill: true,
-        borderColor: `rgba(${192 - index * 50}, 75, 75, 1)`,
+        borderColor: `rgba(${192 - index * 50}, ${75 - index * 50}, 75, 1)`,
         backgroundColor: 'rgba(0, 0, 0, 0.0)',
-        pointBackgroundColor: `rgba(${192 - index * 50}, 75, 75, 1)`,
+        pointBackgroundColor: `rgba(${192 - index * 50}, ${75 - index * 50}, 75, 1)`,
         pointRadius: pointRadius,
         pointHoverRadius: pointRadius + 2,
       }
@@ -159,9 +168,9 @@ function renderWindChart(ctx) {
         label: `Station ${index + 1}`,
         data: data.map(count => (count / total) * 100),
         fill: true,
-        borderColor: `rgba(${75 + index * 50}, 192, 192, 1)`,
-        backgroundColor: `rgba(${75 + index * 50}, 192, 192, 0.2)`,
-        pointBackgroundColor: `rgba(${75 + index * 50}, 192, 192, 1)`,
+        borderColor: `rgba(${75 + index * 50}, ${75 + index * 50}, 192, 1)`,
+        backgroundColor: `rgba(${75 + index * 50}, ${75 + index * 50}, 192, 0.2)`,
+        pointBackgroundColor: `rgba(${75 + index * 50}, ${75 + index * 50}, 192, 1)`,
         pointRadius: 5,
         pointHoverRadius: 7,
       };
