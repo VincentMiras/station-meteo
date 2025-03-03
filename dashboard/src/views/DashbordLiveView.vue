@@ -83,12 +83,6 @@ const labels = {
                 <Carte :coords="stationloc" :station="stationname" />
         </div>
     </div>
-    <Mesure 
-                        :titre="'Humidité'" 
-                        :station="'station n°00'"
-                        :valeur="70" 
-                        :unite="'%'" 
-                    />
 </template>
 
 
