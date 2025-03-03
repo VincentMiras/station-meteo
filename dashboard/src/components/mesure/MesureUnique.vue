@@ -77,7 +77,7 @@ const textGradient = computed(() => {
         ];
         return calculateColor(steps, props.valeur, 950, 1050);
     }
-    if (props.titre === 'Précipitations') {
+    if (props.titre === 'Pluie') {
         const steps = [
             { temp: 0, color: [0, 0, 0] }, // Noir
             { temp: 1, color: [0, 0, 255] }// Bleu
