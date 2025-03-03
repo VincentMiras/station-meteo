@@ -47,22 +47,23 @@ onMounted(() => {
 	  style: 'normal'
   });
 
-  const OpenStreetMap_France = L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
-	maxZoom: 20,
-	attribution: '&copy; OpenStreetMap France | &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  const CartoDB_Voyager = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+	attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+	subdomains: 'abcd',
+	maxZoom: 20
 });
 
   map.value.on('zoomend', () => {
     const currentZoom = map.value.getZoom();
     if (currentZoom >= 8) {
-      if (!map.value.hasLayer(OpenStreetMap_France)) {
-        map.value.addLayer(OpenStreetMap_France);
+      if (!map.value.hasLayer(CartoDB_Voyager)) {
+        map.value.addLayer(CartoDB_Voyager);
         map.value.removeLayer(geolayer);
       }
     } else {
       if (!map.value.hasLayer(geolayer)) {
         map.value.addLayer(geolayer);
-        map.value.removeLayer(OpenStreetMap_France);
+        map.value.removeLayer(CartoDB_Voyager);
       }
     }
   });
