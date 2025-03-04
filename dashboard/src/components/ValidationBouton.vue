@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useWeatherStore } from '@/stores/WeatherStore';
 import { useDataStore } from '@/stores/DataStore';
@@ -10,12 +10,14 @@ const dataStore = useDataStore();
 let lien = weatherStore.mode;
 
 const isLoading = ref(false);
+const fetchFailed = ref(false);
 
 const handleValidation = async () => {
     console.log('Mesures sélectionnées :', weatherStore.queryParams);
     console.log('URL auto ?:', weatherStore.url_fetch);
 
     isLoading.value = true;
+    fetchFailed.value = false;
 
     try {
         if (weatherStore.url_fetch.length > 1) {
@@ -31,6 +33,7 @@ const handleValidation = async () => {
 
     } catch (error) {
         console.error('Une erreur s\'est produite, impossible de récupérer les données', error);
+        fetchFailed.value = true;
     } finally {
         isLoading.value = false;
     }
@@ -53,6 +56,10 @@ const fetchData = async (url) => {
         throw error;
     }
 };
+
+watch(() => weatherStore.station, () => {
+    fetchFailed.value = false;
+});
 </script>
 
 <template>
@@ -60,8 +67,10 @@ const fetchData = async (url) => {
         class="validate-btn"
         @click="handleValidation"
         :disabled="isDisabled"
+        :class="{ 'fetch-failed': fetchFailed }"
     >
         <span v-if="isLoading" class="spinner"></span>
+        <span v-if="fetchFailed" class="cross">✖</span>
         Valider
     </button>
 </template>
@@ -91,9 +100,12 @@ const fetchData = async (url) => {
     background-color: #218838;
 }
 
-.validate-btn:disabled:hover {
-    background-color: rgb(190, 50, 50);
-    color: white;
+.validate-btn.fetch-failed {
+    background-color: #dc3545;
+}
+
+.validate-btn.fetch-failed:hover {
+    background-color: #c82333;
 }
 
 .spinner {
@@ -103,6 +115,12 @@ const fetchData = async (url) => {
     width: 16px;
     height: 16px;
     animation: spin 0.6s linear infinite;
+    margin-right: 8px;
+}
+
+.cross {
+    color: white;
+    font-size: 18px;
     margin-right: 8px;
 }
 
