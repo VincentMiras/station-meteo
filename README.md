@@ -47,6 +47,3 @@ which takes up a lot of space for a small variation.
 <h1 align="center">
   <img src="https://capsule-render.vercel.app/api?type=waving&color=0:FF5733,100:FFC300&height=115&reversal=true&section=footer"/>
 </h1>
-<h1 align="center">
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:FF5733,100:FFC300&height=115&reversal=true&section=footer"/>
-</h1>
