@@ -6,7 +6,7 @@ const weatherStore = useWeatherStore();
 const defaultStartDate = ref('');
 
 onMounted(() => {
-    defaultStartDate.value = new Date(Date.now() - 86400000).toISOString().slice(0, 16);
+    defaultStartDate.value = new Date(Date.now() - 22 * 60 * 60 * 1000).toISOString().slice(0, 16);
     if (!weatherStore.startDate) {
         weatherStore.startDate = defaultStartDate.value;
     }

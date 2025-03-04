@@ -34,6 +34,7 @@ const goToSampleView = () => {
 <style scoped>
 .container {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   gap: 20px;
   margin-top: 20px;
@@ -43,41 +44,73 @@ const goToSampleView = () => {
   position: relative;
   text-align: center;
   color: white;
-  background-color: white;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: 10px;
   overflow: hidden;
   cursor: pointer;
-  width: 440px;
-  height: 440px;
+  width: 100%;
+  max-width: 440px;
+  height: auto;
+  aspect-ratio: 1;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.box:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
 }
 
 .box img {
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: cover;
 }
 
 .box p {
   position: absolute;
-  bottom: 50px;
+  bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(24, 184, 195, 0.95);
   padding: 5px 10px;
   border-radius: 10px;
 }
+
 .title {
   text-align: center;
   margin-top: 5px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   padding: 10px;
   border-radius: 10px;
-  font-family: 'Arial', sans-serif;
+  font-family: 'Poppins', sans-serif;
+  background-color: #47c3ed3b; 
 }
 
 .title h1 {
-  font-size: 2rem;
-  color: #333;
-  font-family: 'Arial', sans-serif;
+  font-size: 2.5rem;
+  color: #333333;
+  font-family: 'Poppins', sans-serif; 
+}
+
+@media (max-width: 768px) {
+  .box {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .title h1 {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .box {
+    width: 100%;
+    max-width: 200px;
+  }
+
+  .title h1 {
+    font-size: 1.5rem;
+  }
 }
 </style>
