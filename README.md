@@ -1,8 +1,8 @@
 <h1 align="center">
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:FF5733,100:FFC300&height=215&section=header&fontColor=ffffff&text=Weather Station 🌦️"/>
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:FF5733,100:FFC300&height=115&section=header"/>
 </h1>
 
-## Introductory diagram
+## Weather Station 🌦️
 <p align="center">
     <img src="images/station.png" alt="illustration" width="600"/>
 </p>
