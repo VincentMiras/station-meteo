@@ -1,1 +1,0 @@
-import{T as e}from"./Graphe-uYMX7w9v.js";import{c as t,b as r,o as a}from"./index-C4MXbM_u.js";const p={__name:"test",setup(o){return(s,c)=>(a(),t("main",null,[r(e,{titre:"Température",valeur:[1,2,3,4,5,6,7,8,9],dates:[0,1,2,5,4,7,8]})]))}};export{p as default};

@@ -1,1 +1,0 @@
-import{u as o,C as t,V as r}from"./ValidationBouton-B8MhRAJK.js";import{c as s,a as e,o as n}from"./index-B9_tejoz.js";const p={__name:"LiveView",setup(c){const a=o();return a.mode="live",(i,m)=>(n(),s("main",null,[e(t),e(r)]))}};export{p as default};
