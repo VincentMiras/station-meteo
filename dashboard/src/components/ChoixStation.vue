@@ -11,7 +11,7 @@ const weatherStore = useWeatherStore();
         <div class="station-option"
             v-for="stationId in ['piensg027', 'piensg028', 'piensg030', 'piensg031', 'piensg032']"
             :key="stationId">
-            <input type="checkbox" :id="stationId" :value="stationId" v-model="weatherStore.station" />
+            <input type="checkbox" :id="stationId" :value="stationId" v-model="weatherStore.station" :checked="stationId === 'piensg031'" />
             <label :for="stationId">{{ stationId }}</label>
         </div>
     </fieldset>

@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 
+
 export const useWeatherStore = defineStore('weather', () => {
     const mode = ref('live');
     const selectedMeasures = ref([]);

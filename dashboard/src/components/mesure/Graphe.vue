@@ -27,6 +27,15 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  unit: {
+    type: String,
+    required: true,
+    default: ''
+  },
+  stationIds: {
+    type: Array,
+    required: true
+  }
 });
 
 // Référence au canvas
@@ -57,22 +66,28 @@ function renderChart() {
 
 // Fonction pour créer un graphique en ligne
 function renderLineChart(ctx) {
-  const datasets = props.valeur.map((valeurs, index) => ({
-    label: `Station ${index + 1}`,
-    data: valeurs,
-    fill: false,
-    borderColor: `rgba(${75 + index * 50}, 192, 192, 1)`,
-    tension: 0.4,
-    borderWidth: 2,
-    pointBackgroundColor: `rgba(${75 + index * 50}, 192, 192, 1)`,
-    pointRadius: 5,
-    pointHoverRadius: 7,
-  }));
+  const datasets = props.valeur.map((valeurs, index) => {
+    const pointRadius = Math.max(1, 5 - Math.floor(valeurs.length / 50));
+    return {
+      label: `${props.titre}, Station : ${props.stationIds[index]}`,
+      data: valeurs,
+      fill: false,
+      borderColor: `rgba(${75 + index * 50}, ${192 + index * 50}, 192, 1)`,
+      tension: 0.4,
+      borderWidth: 2,
+      pointBackgroundColor: `rgba(${75 + index * 50}, ${192 + index * 50}, 192, 1)`,
+      pointRadius: pointRadius,
+      pointHoverRadius: pointRadius + 2,
+    };
+  })
 
   new Chart(ctx, {
     type: 'line',
     data: {
-      labels: props.dates,
+      labels: props.dates.map(date => {
+        const d = new Date(date);
+        return `${d.toLocaleString('default', { month: 'short' })} ${d.getDate()} : ${d.getHours()}h`;
+      }),
       datasets: datasets
     },
     options: {
@@ -81,6 +96,10 @@ function renderLineChart(ctx) {
         y: {
           suggestedMin: Math.min(...props.valeur.flat()) - 1,
           suggestedMax: Math.max(...props.valeur.flat()) + 1,
+          title: {
+            display: true,
+            text: props.unit
+          }
         },
       },
     },
@@ -96,22 +115,22 @@ function renderRadarChart(ctx) {
 
     return [
       {
-        label: `Station ${index + 1} Latitude (°)`,
+        label: `Latitude, Station: ${props.stationIds[index]} (°)`,
         data: latitudes,
         fill: true,
-        borderColor: `rgba(${75 + index * 50}, 192, 192, 1)`,
-        backgroundColor: `rgba(${75 + index * 50}, 192, 192, 0.2)`,
-        pointBackgroundColor: `rgba(${75 + index * 50}, 192, 192, 1)`,
+        borderColor: `rgba(${75 + index * 50}, ${192 - index * 30}, ${192 - index * 30}, 1)`,
+        backgroundColor: `rgba(${75 + index * 50}, ${192 - index * 30}, ${192 - index * 30}, 0.2)`,
+        pointBackgroundColor: `rgba(${75 + index * 50}, ${192 - index * 30}, ${192 - index * 30}, 1)`,
         pointRadius: pointRadius,
         pointHoverRadius: pointRadius + 2,
       },
       {
-        label: `Station ${index + 1} Longitude (°)`,
+        label: `Longitude, Station: ${props.stationIds[index]} (°)`,
         data: longitudes,
         fill: true,
-        borderColor: `rgba(${192 - index * 50}, 75, 75, 1)`,
+        borderColor: `rgba(${192 - index * 50}, ${75 - index * 50}, 75, 1)`,
         backgroundColor: 'rgba(0, 0, 0, 0.0)',
-        pointBackgroundColor: `rgba(${192 - index * 50}, 75, 75, 1)`,
+        pointBackgroundColor: `rgba(${192 - index * 50}, ${75 - index * 50}, 75, 1)`,
         pointRadius: pointRadius,
         pointHoverRadius: pointRadius + 2,
       }
@@ -156,12 +175,12 @@ function renderWindChart(ctx) {
       });
       const total = valeurs.length;
       return {
-        label: `Station ${index + 1}`,
+        label: `Direction du vent, Station: ${props.stationIds[index]}`,
         data: data.map(count => (count / total) * 100),
         fill: true,
-        borderColor: `rgba(${75 + index * 50}, 192, 192, 1)`,
-        backgroundColor: `rgba(${75 + index * 50}, 192, 192, 0.2)`,
-        pointBackgroundColor: `rgba(${75 + index * 50}, 192, 192, 1)`,
+        borderColor: `rgba(${75 + index * 50}, ${75 + index * 50}, 192, 1)`,
+        backgroundColor: `rgba(${75 + index * 50}, ${75 + index * 50}, 192, 0.2)`,
+        pointBackgroundColor: `rgba(${75 + index * 50}, ${75 + index * 50}, 192, 1)`,
         pointRadius: 5,
         pointHoverRadius: 7,
       };
@@ -235,5 +254,4 @@ function renderWindChart(ctx) {
 </script>
 
 <style scoped>
-/* Styles spécifiques à votre composant */
 </style>

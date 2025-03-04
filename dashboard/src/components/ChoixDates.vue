@@ -1,15 +1,23 @@
 <script setup>
 import { useWeatherStore } from '@/stores/WeatherStore';
+import { ref, onMounted } from 'vue';
 
 const weatherStore = useWeatherStore();
+const defaultStartDate = ref('');
 
+onMounted(() => {
+    defaultStartDate.value = new Date(Date.now() - 86400000).toISOString().slice(0, 16);
+    if (!weatherStore.startDate) {
+        weatherStore.startDate = defaultStartDate.value;
+    }
+});
 </script>
 
 <template>
     <div class="date-container">
         <label for="start">Start date:</label>
         <input type="datetime-local" id="start" name="start" :max="weatherStore.endDate"
-            v-model="weatherStore.startDate" />
+            v-model="weatherStore.startDate" :placeholder="defaultStartDate" />
 
         <label for="end">End date (optional):</label>
         <input type="datetime-local" id="end" name="end" :min="weatherStore.startDate" v-model="weatherStore.endDate" />
@@ -26,7 +34,7 @@ label {
     color: #333;
 }
 
-input[type="date"] {
+input[type="datetime-local"] {
     width: 100%;
     max-width: 300px;
     padding: 10px;
@@ -37,13 +45,13 @@ input[type="date"] {
     transition: border-color 0.3s, box-shadow 0.3s;
 }
 
-input[type="date"]:focus {
+input[type="datetime-local"]:focus {
     border-color: rgb(214, 161, 3);
     box-shadow: 0 0 8px rgba(214, 161, 3, 0.5);
     outline: none;
 }
 
-input[type="date"]::placeholder {
+input[type="datetime-local"]::placeholder {
     color: #aaa;
 }
 
@@ -56,8 +64,6 @@ input[type="date"]::placeholder {
     margin: 20px auto;
     display: flex;
     flex-direction: column;
-    /* Force les inputs à être l'un en dessous de l'autre */
     gap: 10px;
-    /* Espacement entre les labels et inputs */
 }
 </style>

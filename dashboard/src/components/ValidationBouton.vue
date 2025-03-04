@@ -1,18 +1,21 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useWeatherStore } from '@/stores/WeatherStore';
 import { useDataStore } from '@/stores/DataStore';
 
-
 const router = useRouter();
 const weatherStore = useWeatherStore();
 const dataStore = useDataStore();
-let lien =weatherStore.mode;
+let lien = weatherStore.mode;
+
+const isLoading = ref(false);
 
 const handleValidation = async () => {
     console.log('Mesures sélectionnées :', weatherStore.queryParams);
     console.log('URL auto ?:', weatherStore.url_fetch);
+
+    isLoading.value = true;
 
     try {
         if (weatherStore.url_fetch.length > 1) {
@@ -28,9 +31,10 @@ const handleValidation = async () => {
 
     } catch (error) {
         console.error('Une erreur s\'est produite, impossible de récupérer les données', error);
+    } finally {
+        isLoading.value = false;
     }
 };
-
 
 const isDisabled = computed(() =>
     weatherStore.mode === 'sample' && !weatherStore.startDate || weatherStore.selectedMeasures.length === 0 || weatherStore.station.length === 0
@@ -52,7 +56,14 @@ const fetchData = async (url) => {
 </script>
 
 <template>
-    <button class="validate-btn" @click="handleValidation" :disabled="isDisabled">Valider</button>
+    <button
+        class="validate-btn"
+        @click="handleValidation"
+        :disabled="isDisabled"
+    >
+        <span v-if="isLoading" class="spinner"></span>
+        Valider
+    </button>
 </template>
 
 <style scoped>
@@ -65,6 +76,9 @@ const fetchData = async (url) => {
     border-radius: 5px;
     cursor: pointer;
     transition: background 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .validate-btn:disabled {
@@ -80,5 +94,20 @@ const fetchData = async (url) => {
 .validate-btn:disabled:hover {
     background-color: rgb(190, 50, 50);
     color: white;
+}
+
+.spinner {
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top: 2px solid white;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    animation: spin 0.6s linear infinite;
+    margin-right: 8px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 </style>

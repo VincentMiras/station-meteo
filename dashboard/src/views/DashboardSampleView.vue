@@ -80,58 +80,91 @@ const labels = {
         <button v-if="parsedData.length > 1" @click="displaySameGraph = !displaySameGraph" class="displaySameGraph">
             {{ displaySameGraph ? 'Afficher les données sur des graphiques séparés' : 'Afficher les données sur le même graphique' }}
         </button>
-        <div class="graphs-container">
+        <div class="container">
             <template v-if="displaySameGraph">
-                <div v-for="mesure in mesures" :key="mesure" class="graph-item">
-                    <template v-if="mesure !== 'position'">
-                        <h3>{{ labels[mesure] }}</h3>
-                        <Graphe :titre="`${labels[mesure]} (${getUnitForKey(mesure)})`" 
-                                :valeur="parsedData.map(station => station.data.map(item => item[mesure]))"
-                                :dates="parsedData[0].data.map(item => item.date)" 
-                                type="line" />
-                    </template>
-                </div>
-                <div v-if="mesures.includes('position')" class="graph-item">
-                    <h3>Position</h3>
-                    <Graphe :titre="'Latitude et Longitude'" 
-                            :valeur="parsedData.map(station => station.data.map(item => [item.lat, item.lon]))"
-                            :dates="parsedData[0].data.map(item => item.date)" 
-                            type="radar" />
-                </div>
-                <div v-if="mesures.includes('wind_heading')" class="graph-item">
-                    <h3>{{ labels['wind_heading'] }} ({{ getUnitForKey('wind_heading') }})</h3>
-                    <Graphe :titre="`${labels['wind_heading']} (${getUnitForKey('wind_heading')})`" 
-                            :valeur="[parsedData.flatMap(station => station.data.map(item => item['wind_heading']))]"
-                            :dates="parsedData[0].data.map(item => item.date)" 
-                            type="wind" />
-                </div>
-                
-            </template>
-            <template v-else>
-                <div v-for="station in parsedData" :key="station.id">
-                    <h2>Station {{ station.id }}</h2>
-                    <div v-for="mesure in mesures" :key="mesure" class="graph-item">
+                <div class="measure-row">
+                    <div v-for="mesure in mesures" :key="mesure" class="measure-item">
                         <template v-if="mesure !== 'position' && mesure !== 'wind_heading'">
-                            <h3>{{ labels[mesure] }}</h3>
+                            <div class="title-box">
+                                <h3>{{ labels[mesure] }}</h3>
+                            </div>
                             <Graphe :titre="`${labels[mesure]} (${getUnitForKey(mesure)})`" 
-                                    :valeur="[station.data.map(item => item[mesure])]"
-                                    :dates="station.data.map(item => item.date)" 
+                                    :valeur="parsedData.map(station => station.data.map(item => item[mesure]))"
+                                    :dates="parsedData[0].data.map(item => item.date)" 
+                                    :unit="getUnitForKey(mesure)"
+                                    :stationIds="parsedData.map(station => station.id)"
                                     type="line" />
                         </template>
                     </div>
-                    <div v-if="mesures.includes('position')" class="graph-item">
-                        <h3>Position</h3>
+                </div>
+                <div class="measure-row">
+                    <div v-if="mesures.includes('position')" class="measure-item">
+                        <div class="title-box">
+                            <h3>Position</h3>
+                        </div>
                         <Graphe :titre="'Latitude et Longitude'" 
-                                :valeur="[station.data.map(item => [item.lat, item.lon])]"
-                                :dates="station.data.map(item => item.date)" 
+                                :valeur="parsedData.map(station => station.data.map(item => [item.lat, item.lon]))"
+                                :dates="parsedData[0].data.map(item => item.date)" 
+                                :unit="getUnitForKey('position')"
+                                :stationIds="parsedData.map(station => station.id)"
                                 type="radar" />
                     </div>
-                    <div v-if="mesures.includes('wind_heading')" class="graph-item">
-                        <h3>{{ labels['wind_heading'] }}</h3>
-                        <Graphe :titre="`${labels['wind_heading']}`" 
-                                :valeur="[station.data.map(item => item['wind_heading'])]"
-                                :dates="station.data.map(item => item.date)" 
+                    <div v-if="mesures.includes('wind_heading')" class="measure-item">
+                        <div class="title-box">
+                            <h3>{{ labels['wind_heading'] }} ({{ getUnitForKey('wind_heading') }})</h3>
+                        </div>
+                        <Graphe :titre="`${labels['wind_heading']} (${getUnitForKey('wind_heading')})`" 
+                                :valeur="[parsedData.flatMap(station => station.data.map(item => item['wind_heading']))]"
+                                :dates="parsedData[0].data.map(item => item.date)" 
+                                :unit="getUnitForKey('wind_heading')"
+                                :stationIds="parsedData.map(station => station.id)"
                                 type="wind" />
+                    </div>
+                </div>
+            </template>
+            <template v-else>
+                <div v-for="station in parsedData" :key="station.id" class="station-container">
+                    <div class="station-title-box">
+                        <h2>Station {{ station.id }}</h2>
+                    </div>
+                    <div class="measure-row">
+                        <div v-for="mesure in mesures" :key="mesure" class="measure-item">
+                            <template v-if="mesure !== 'position' && mesure !== 'wind_heading'">
+                                <div class="title-box">
+                                    <h3>{{ labels[mesure] }}</h3>
+                                </div>
+                                <Graphe :titre="`${labels[mesure]} (${getUnitForKey(mesure)})`" 
+                                        :valeur="[station.data.map(item => item[mesure])]"
+                                        :dates="station.data.map(item => item.date)" 
+                                        :unit="getUnitForKey(mesure)"
+                                        :stationIds="[station.id]"
+                                        type="line" />
+                            </template>
+                        </div>
+                    </div>
+                    <div class="measure-row">
+                        <div v-if="mesures.includes('position')" class="measure-item">
+                            <div class="title-box">
+                                <h3>Position</h3>
+                            </div>
+                            <Graphe :titre="'Latitude et Longitude'" 
+                                    :valeur="[station.data.map(item => [item.lat, item.lon])]"
+                                    :dates="station.data.map(item => item.date)" 
+                                    :unit="getUnitForKey('position')"
+                                    :stationIds="[station.id]"
+                                    type="radar" />
+                        </div>
+                        <div v-if="mesures.includes('wind_heading')" class="measure-item">
+                            <div class="title-box">
+                                <h3>{{ labels['wind_heading'] }}</h3>
+                            </div>
+                            <Graphe :titre="`${labels['wind_heading']} (${getUnitForKey('wind_heading')})`" 
+                                    :valeur="[station.data.map(item => item['wind_heading'])]"
+                                    :dates="station.data.map(item => item.date)" 
+                                    :unit="getUnitForKey('wind_heading')"
+                                    :stationIds="[station.id]"
+                                    type="wind" />
+                        </div>
                     </div>
                 </div>
             </template>
@@ -140,23 +173,44 @@ const labels = {
 </template>
 
 <style scoped>
-.graphs-container {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
-    width: 100%;
-}
-
-.graph-item {
-    box-sizing: border-box;
-    width: 100%;
-}
-
-.graphs-container > .graph-item:only-child {
-    grid-column: span 1;
+.container {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    gap: 2vh;
 }
+
+.measure-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2vh;
+}
+
+.measure-item {
+    box-sizing: border-box;
+    flex: 1 1 calc(50% - 2vh);
+}
+
+.station-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2vh;
+}
+
+.station-container .measure-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2vh;
+}
+
+.station-container .measure-item {
+    flex: 1 1 calc(50% - 2vh);
+}
+
+.map-item {
+    width: 100%;
+    margin-top: 1vh;
+}
+
 .displaySameGraph {
     /* easter egg de la requetête chat GPT qui a produit ce bouton: add an incredibly complicated css so it looks like bouton de la mort qui tue */
     display: flex;
@@ -185,5 +239,27 @@ const labels = {
 .displaySameGraph:hover {
     transform: scale(1.1);
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.title-box {
+    background: #f0f0f0;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.station-title-box {
+    background: #6675e7;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    margin-bottom: 20px;
+    text-align: center;
+    color: #ffffff;
+    display: inline-block;
+    font-size: 24px;
+    font-weight: bold;
 }
 </style>
