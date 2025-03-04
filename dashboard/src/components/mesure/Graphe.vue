@@ -66,17 +66,20 @@ function renderChart() {
 
 // Fonction pour créer un graphique en ligne
 function renderLineChart(ctx) {
-  const datasets = props.valeur.map((valeurs, index) => ({
-    label: `${props.titre}, Station : ${props.stationIds[index]}`,
-    data: valeurs,
-    fill: false,
-    borderColor: `rgba(${75 + index * 50}, ${192 + index * 50}, 192, 1)`,
-    tension: 0.4,
-    borderWidth: 2,
-    pointBackgroundColor: `rgba(${75 + index * 50}, ${192+ index * 50}, 192, 1)`,
-    pointRadius: 5,
-    pointHoverRadius: 7,
-  }));
+  const datasets = props.valeur.map((valeurs, index) => {
+    const pointRadius = Math.max(1, 5 - Math.floor(valeurs.length / 50));
+    return {
+      label: `${props.titre}, Station : ${props.stationIds[index]}`,
+      data: valeurs,
+      fill: false,
+      borderColor: `rgba(${75 + index * 50}, ${192 + index * 50}, 192, 1)`,
+      tension: 0.4,
+      borderWidth: 2,
+      pointBackgroundColor: `rgba(${75 + index * 50}, ${192 + index * 50}, 192, 1)`,
+      pointRadius: pointRadius,
+      pointHoverRadius: pointRadius + 2,
+    };
+  })
 
   new Chart(ctx, {
     type: 'line',
