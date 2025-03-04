@@ -89,8 +89,11 @@ const labels = {
                                 <h3>{{ labels[mesure] }}</h3>
                             </div>
                             <Graphe :titre="`${labels[mesure]} (${getUnitForKey(mesure)})`" 
-                                    :valeur="parsedData.map(station => station.data.map(item => item[mesure]))"
-                                    :dates="parsedData[0].data.map(item => item.date)" 
+                                    :valeur="parsedData.map(station => {
+                                        const minLength = Math.min(...parsedData.map(s => s.data.length));
+                                        return station.data.slice(0, minLength).map(item => item[mesure]);
+                                    })"
+                                    :dates="parsedData[0].data.slice(0, Math.min(...parsedData.map(s => s.data.length))).map(item => item.date)" 
                                     :unit="getUnitForKey(mesure)"
                                     :stationIds="parsedData.map(station => station.id)"
                                     type="line" />
@@ -103,8 +106,11 @@ const labels = {
                             <h3>Position</h3>
                         </div>
                         <Graphe :titre="'Latitude et Longitude'" 
-                                :valeur="parsedData.map(station => station.data.map(item => [item.lat, item.lon]))"
-                                :dates="parsedData[0].data.map(item => item.date)" 
+                                :valeur="parsedData.map(station => {
+                                    const minLength = Math.min(...parsedData.map(s => s.data.length));
+                                    return station.data.slice(0, minLength).map(item => [item.lat, item.lon]);
+                                })"
+                                :dates="parsedData[0].data.slice(0, Math.min(...parsedData.map(s => s.data.length))).map(item => item.date)" 
                                 :unit="getUnitForKey('position')"
                                 :stationIds="parsedData.map(station => station.id)"
                                 type="radar" />
@@ -114,11 +120,14 @@ const labels = {
                             <h3>{{ labels['wind_heading'] }} ({{ getUnitForKey('wind_heading') }})</h3>
                         </div>
                         <Graphe :titre="`${labels['wind_heading']} (${getUnitForKey('wind_heading')})`" 
-                                :valeur="[parsedData.flatMap(station => station.data.map(item => item['wind_heading']))]"
-                                :dates="parsedData[0].data.map(item => item.date)" 
-                                :unit="getUnitForKey('wind_heading')"
-                                :stationIds="parsedData.map(station => station.id)"
-                                type="wind" />
+                            :valeur="parsedData.map(station => {
+                                const minLength = Math.min(...parsedData.map(s => s.data.length));
+                                return station.data.slice(0, minLength).map(item => item['wind_heading']);
+                            })"
+                            :dates="parsedData[0].data.slice(0, Math.min(...parsedData.map(s => s.data.length))).map(item => item.date)" 
+                            :unit="getUnitForKey('wind_heading')"
+                            :stationIds="parsedData.map(station => station.id)"
+                            type="wind" />
                     </div>
                 </div>
             </template>
